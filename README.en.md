@@ -64,7 +64,7 @@ Use **EN / 中文** in the top-right corner to switch languages. Bubble settings
 The macOS desktop integration has been tested on real apps. A Windows beta now includes the local studio, file operations, and app launch path; applying bubbles to Windows desktop apps still needs real-device testing.
 
 1. On macOS, download the latest [DMG](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest), drag `DIY Codex Bubble.app` to Applications, and open it. If macOS blocks the first launch, use System Settings → Privacy & Security → Open Anyway once.
-2. On Windows, download the ZIP, extract it, and double-click `Start Bubble Studio.cmd`.
+2. On Windows, download `DIYcodex-bubble-vVERSION-windows.zip` from the release and extract the entire archive. Install Python 3.9+ (select Add Python to PATH) and Node.js LTS, then double-click `Start Bubble Studio.cmd`. Administrator rights are not required.
 3. On first run, the built-in **Alien cat** bubble is selected for Codex and **Restore after computer startup** is enabled. If Codex is already running normally, fully quit it and use the studio's Restart button. The studio never force-quits an app.
 4. Keep the preset or open the studio later to choose another PNG, adjust it, or apply a separate bubble to Doubao. **Restore default** reverses the current app's skin.
 
