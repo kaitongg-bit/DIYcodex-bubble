@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "0.2.8"
+  #define AppVersion "0.2.9"
 #endif
 #ifndef StageName
   #define StageName "windows-light"

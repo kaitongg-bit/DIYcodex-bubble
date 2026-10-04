@@ -1,5 +1,8 @@
 <p align="center">
   <img src="presets/alien-cat.png" alt="DIY Codex Bubble" width="96">
+
+
+
 </p>
 
 <h2 align="center">DIY Codex Bubble · Bubble Studio</h2>
@@ -81,6 +84,8 @@ The Windows beta checks common folders on local drives, running apps, registry e
 The installed Windows app stores settings and logs in `%LOCALAPPDATA%\DIY Codex Bubble\Data`; upgrades preserve them. The unsigned installer may trigger SmartScreen. Legacy source ZIP / `.cmd` launchers remain available for development and require separately installed Python and Node.js. Windows desktop injection remains beta; please report connection issues as described above.
 
 ## Usage
+
+Open the installed studio, then click **Import into my studio** in the online gallery to import both the PNG and settings into a dedicated community folder. Preview before applying to Codex / Doubao. **Open selected asset folder** reveals the image folder. Renaming an external PNG changes its display name, but saved settings are tied to its path; keep tuned filenames unchanged.
 
 ### One studio, two apps
 

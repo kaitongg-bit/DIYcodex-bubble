@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local PNG library + nine-slice editor + Codex appearance bridge. No cloud calls."""
+"""Local bubble editor and bridge, with explicit approved-gallery imports."""
 from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
 from pathlib import Path
 import json,struct,hashlib,base64,subprocess,shutil,os,threading,time,argparse,uuid,sys
@@ -94,7 +94,7 @@ def first_run_setup(s):
  return {'firstRun':True,'activeId':s['platforms']['codex']['active']['id']}
 def library(s=None):
  s=s or state();items=[];seen=set()
- for folder in s['folders']+[str(DATA/'imports'),str(DATA/'builtins')]:
+ for folder in s['folders']+[str(DATA/'imports'),str(DATA/'builtins'),str(DATA/'community')]:
   p=Path(folder)
   if not p.is_dir():continue
   for f in sorted(p.glob('*.png')):
@@ -105,9 +105,40 @@ def library(s=None):
    for term,label in NAMES.items():
     if name.startswith(term):name=name.replace(term,label);break
    if f.parent==DATA/'builtins':name=next((x['name'] for x in bundled_presets() if x['filename']==f.name),name)
+   name=s.get('communityNames',{}).get(key,name)
    config={**defaults(w,h),**s['presets'].get(key,{})}
    items.append({'id':key,'name':name,'filename':f.name,'width':w,'height':h,'bytes':size,'douyinSize':w<=198 and h<=162 and size<=2*1024*1024,'favorite':key in s['favorites'],'config':config,'url':'/asset/'+key,'builtin':f.parent==DATA/'builtins','path':str(f.resolve())})
  return items
+GALLERY_BASE='https://kaitongg-bit.github.io/DIYcodex-bubble/'
+def public_gallery_bytes(relative,limit):
+ import urllib.request
+ # Only fixed catalog locations and validated filenames reach this helper.
+ with urllib.request.urlopen(GALLERY_BASE+relative,timeout=20) as response:
+  if not response.geturl().startswith(GALLERY_BASE):raise ValueError('气泡库地址无效')
+  data=response.read(limit+1)
+ if len(data)>limit:raise ValueError('气泡文件过大')
+ return data
+def import_community(s,kind,identifier):
+ import re
+ if kind not in ('preset','community') or not re.fullmatch(r'[a-zA-Z0-9-]{1,80}',str(identifier)):raise ValueError('气泡库作品编号无效')
+ directory='presets' if kind=='preset' else 'community-gallery'
+ catalog=json.loads(public_gallery_bytes(directory+'/manifest.json',1024*1024))
+ item=next((entry for entry in catalog['items'] if entry['id']==identifier),None)
+ if not item:raise ValueError('作品已下架或不存在')
+ filename=item['filename']
+ if not re.fullmatch(r'[a-zA-Z0-9_-]+\.png',filename):raise ValueError('气泡文件名无效')
+ data=public_gallery_bytes(directory+'/'+filename,2*1024*1024)
+ folder=DATA/'community';folder.mkdir(exist_ok=True)
+ destination=folder/(kind+'-'+identifier+'.png')
+ temporary=folder/(uuid.uuid4().hex+'.tmp')
+ try:
+  temporary.write_bytes(data);w,h,_=png_info(temporary);config=validate(item['config'],w,h)
+  temporary.replace(destination)
+ finally:temporary.unlink(missing_ok=True)
+ key=asset_id(destination);s['presets'][key]=config
+ s.setdefault('communityNames',{})[key]=str(item['name'])[:100]
+ s['preferredId']=key;save(s)
+ return key
 def defaults(w,h):return {'left':round(w*.35),'right':round(w*.73),'top':round(h*.45),'bottom':round(h*.55),'scale':round(max(.01,min(.6,240/w,98/h)),4),'radius':0,'borderWidth':0,'borderColor':'#d0d0d0','color':'#44362f','padding':[29,37,36,48],'width':w,'height':h}
 def validate(c,w,h):
  import re
@@ -298,6 +329,17 @@ class Handler(BaseHTTPRequestHandler):
     if body.get('platform',s['platform'])!=s['platform']:raise ValueError('平台已切换，请刷新后重试')
     if self.path=='/api/restore-builtins':
      added=seed_presets(s,restore=True);return self.send({'ok':True,'added':added})
+    if self.path=='/api/community-import':
+     key=import_community(s,body.get('kind'),body.get('id'))
+     return self.send({'ok':True,'id':key})
+    if self.path=='/api/open-material-folder':
+     item=next((x for x in library(s) if x['id']==body.get('id')),None)
+     if not item:raise ValueError('请先选择一款气泡')
+     folder=Path(item['path']).parent
+     if sys.platform=='darwin':subprocess.run(['/usr/bin/open',str(folder)],check=True,capture_output=True)
+     elif sys.platform=='win32':os.startfile(str(folder))
+     else:raise ValueError('目前仅支持 macOS 和 Windows')
+     return self.send({'ok':True})
     if self.path=='/api/gallery-download':
      item=next((x for x in bundled_presets() if x['id']==body.get('id')),None)
      if not item:raise ValueError('素材不存在')

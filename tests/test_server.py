@@ -16,13 +16,38 @@ class StudioTests(unittest.TestCase):
   cls.thread=threading.Thread(target=cls.http.serve_forever,daemon=True);cls.thread.start();cls.base=f'http://127.0.0.1:{server.PORT}'
  @classmethod
  def tearDownClass(cls):cls.http.shutdown();cls.http.server_close();TASK_DATA.cleanup()
- def setUp(self):shutil.rmtree(Path(TASK_DATA.name)/'imports',ignore_errors=True);shutil.rmtree(Path(TASK_DATA.name)/'builtins',ignore_errors=True);server.save({**json.loads(json.dumps(server.DEFAULT)),'builtinsInitialized':True});self.folder=Path(TASK_DATA.name)/'art';shutil.rmtree(self.folder,ignore_errors=True);self.folder.mkdir();(self.folder/'one.png').write_bytes(png());(self.folder/'two.png').write_bytes(png(160,120))
+ def setUp(self):shutil.rmtree(Path(TASK_DATA.name)/'community',ignore_errors=True);shutil.rmtree(Path(TASK_DATA.name)/'imports',ignore_errors=True);shutil.rmtree(Path(TASK_DATA.name)/'builtins',ignore_errors=True);server.save({**json.loads(json.dumps(server.DEFAULT)),'builtinsInitialized':True});self.folder=Path(TASK_DATA.name)/'art';shutil.rmtree(self.folder,ignore_errors=True);self.folder.mkdir();(self.folder/'one.png').write_bytes(png());(self.folder/'two.png').write_bytes(png(160,120))
  def request(self,path,body=None,origin=True,language="zh"):
   headers={'Content-Type':'application/json','X-Bubble-Studio':'1','Accept-Language':language}
   if origin:headers['Origin']=self.base
   r=urllib.request.Request(self.base+path,data=None if body is None else json.dumps(body).encode(),headers=headers)
   with urllib.request.urlopen(r) as response:return json.load(response)
  def connect(self):self.request('/api/folder',{'path':str(self.folder)});return self.request('/api/library')['items']
+ def test_community_import_preserves_settings_deduplicates_and_does_not_apply(self):
+  shutil.rmtree(server.DATA/'community',ignore_errors=True)
+  config=server.defaults(198,162);config['color']='#ffffff';config['scale']=.7
+  catalog=json.dumps({'items':[{'id':'test-cat','filename':'test-cat.png','name':'Test cat','config':config}]}).encode()
+  with patch.object(server,'public_gallery_bytes',side_effect=lambda path,limit:catalog if path.endswith('manifest.json') else png()):
+   first=self.request('/api/community-import',{'kind':'community','id':'test-cat'})
+   second=self.request('/api/community-import',{'kind':'community','id':'test-cat'})
+  self.assertEqual(first['id'],second['id'])
+  self.assertEqual(len(list((server.DATA/'community').glob('*.png'))),1)
+  item=next(x for x in self.request('/api/library')['items'] if x['id']==first['id'])
+  self.assertEqual(item['name'],'Test cat');self.assertEqual(item['config']['color'],'#ffffff')
+  self.assertEqual(item['config']['scale'],.7);self.assertIsNone(server.state()['active'])
+  with patch.object(server.sys,'platform','darwin'),patch.object(server.subprocess,'run') as run:
+   self.request('/api/open-material-folder',{'id':first['id']})
+   self.assertEqual(run.call_args.args[0],['/usr/bin/open',str((server.DATA/'community').resolve())])
+  shutil.rmtree(server.DATA/'community')
+ def test_community_import_rejects_traversal_unlisted_and_invalid_settings(self):
+  with patch.object(server,'public_gallery_bytes') as fetch:
+   for body in ({'kind':'community','id':'../test'},{'kind':'https://evil.invalid','id':'cat'}):
+    with self.assertRaises(urllib.error.HTTPError):self.request('/api/community-import',body)
+   fetch.assert_not_called()
+  with patch.object(server,'public_gallery_bytes',return_value=b'{"items":[]}'):
+   with self.assertRaises(urllib.error.HTTPError):self.request('/api/community-import',{'kind':'community','id':'missing'})
+  with self.assertRaises(urllib.error.HTTPError):self.request('/api/community-import',{'kind':'community','id':'cat'},origin=False)
+  with self.assertRaises(urllib.error.HTTPError):self.request('/api/open-material-folder',{'id':'../private'})
  def test_status_identifies_backend_and_picker_capability(self):
   status=self.request('/api/status');data=self.request('/api/library')
   self.assertEqual(status['apiVersion'],2)

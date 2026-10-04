@@ -1,5 +1,8 @@
 <p align="center">
   <img src="presets/alien-cat.png" alt="DIY Codex Bubble" width="96">
+
+
+
 </p>
 
 <h2 align="center">DIY Codex Bubble · 气泡工坊</h2>
@@ -83,6 +86,8 @@ Windows 测试版会查找各个本地磁盘的常见安装位置、运行中的
 Windows 安装版的设置与日志位于 `%LOCALAPPDATA%\DIY Codex Bubble\Data`；升级保留设置。旧的源码 ZIP / `.cmd` 方式仍可用于开发，但需要自行安装 Python 和 Node.js。Windows 桌面注入仍标为测试版，遇到连接问题请按上面的方式反馈。
 
 ## 使用说明
+
+在线气泡库里点击「应用到我的工坊」，可自动导入 PNG 和设置到本机社区气泡目录。请先打开已安装的工坊；导入后预览，再点击应用到 Codex / 豆包。素材库下方「打开所选素材文件夹」可直接打开图片所在目录。外部 PNG 重命名后名称会更新，但原设置按路径关联，建议调好后保留文件名。
 
 ### 一个工坊，两款应用
 
