@@ -43,7 +43,7 @@ def main(open_studio=False):
    try:status=request('/api/status');break
    except Exception:pass
   else:raise RuntimeError('Bubble Studio local service did not start')
- verify_service(status)
+ if sys.platform=='win32':verify_service(status)
  if open_studio:
   setup=request('/api/first-run',{})
   if setup.get('firstRun'):
