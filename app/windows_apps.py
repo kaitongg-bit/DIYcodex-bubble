@@ -27,7 +27,10 @@ def executable_paths(folder, names):
         candidates.extend(base / name for name in names)
         if base.is_dir():
             # Newest numeric version first; never recursively walk a whole drive.
-            versions = [p for p in base.iterdir() if p.is_dir() and re.fullmatch(r'(?:app-)?\d+(?:\.\d+)*(?:[-\w.]*)', p.name)]
+            try:
+                versions = [p for p in base.iterdir() if p.is_dir() and re.fullmatch(r'(?:app-)?\d+(?:\.\d+)*(?:[-\w.]*)', p.name)]
+            except OSError:
+                continue
             versions.sort(key=lambda p: tuple(int(n) for n in re.findall(r'\d+', p.name)), reverse=True)
             candidates.extend(version / name for version in versions[:30] for name in names)
     return candidates
@@ -38,7 +41,7 @@ def registered_paths(key):
     names = NAMES[key]
     label = 'Doubao|豆包' if key == 'doubao' else 'Codex|ChatGPT'
     array = ','.join("'" + n + "'" for n in names)
-    script = r"""+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+    script = r"""[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 $names = @(__NAMES__)
 $paths = [System.Collections.Generic.List[string]]::new()
 $filter = ($names | ForEach-Object { "Name = '$_'" }) -join ' OR '

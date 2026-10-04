@@ -76,7 +76,7 @@ macOS 使用 DMG 安装，Windows 使用 EXE 安装包，两者都从 **DIY Code
 
 **双击后只看到了代码？** 请从系统文件管理器打开对应的启动文件，Codex 的文件预览只是查看代码。如果提示缺少运行环境，或需要从源码启动，见 [运行与开发说明](DEVELOPMENT.md)。
 
-Windows 测试版会查找常见的应用安装位置和可信发布者的 Microsoft Store 包。若找不到应用，可在启动工坊前设置 `BUBBLE_STUDIO_CODEX_EXE` 或 `BUBBLE_STUDIO_DOUBAO_EXE` 为实际 `.exe` 路径。部分 Windows 商店应用可能不接受调试端口参数；若一直显示“未连接”，请在 [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues) 附上 Windows 版本、应用版本与 `.local/app-start.log` 中去除私人路径后的报错，勿上传聊天内容。
+Windows 测试版会查找各个本地磁盘的常见安装位置、运行中的应用、注册表、快捷方式与可信发布者的 Microsoft Store 包。若找不到应用，点击工坊里的“选择应用位置”，选取已安装的 `Doubao.exe`、`Codex.exe` 或 `ChatGPT.exe`；位置会自动保存。不要选择下载的 `OnlineInstaller` 安装器。部分 Windows 商店应用可能不接受调试端口参数；若一直显示“未连接”，请在 [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues) 附上 Windows 版本、应用版本与 `.local/app-start.log` 中去除私人路径后的报错，勿上传聊天内容。
 
 Windows 安装版的设置与日志位于 `%LOCALAPPDATA%\DIY Codex Bubble\Data`；升级保留设置。旧的源码 ZIP / `.cmd` 方式仍可用于开发，但需要自行安装 Python 和 Node.js。Windows 桌面注入仍标为测试版，遇到连接问题请按上面的方式反馈。
 
