@@ -67,7 +67,7 @@ jobs:
       - name: Verify installation and desktop launcher
         run: |
           $install = Join-Path $env:RUNNER_TEMP 'Bubble Installed'
-          $unrelated = Start-Process python -ArgumentList '-c','"import time; time.sleep(240)"' -PassThru
+          $unrelated = Start-Process python -ArgumentList '-c','"import time; time.sleep(900)"' -PassThru
           # Install offline first, then upgrade to light; runtime files must be removed.
           foreach ($variant in @('offline','light')) {
             $setup = (Get-ChildItem "dist/*-windows-x64-$variant-setup.exe").FullName
@@ -103,7 +103,9 @@ jobs:
           # The updater's silent install flag must restart the studio without a manual click.
           $beforeUpdate = (Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*$install*app*server.py*" }).ProcessId
           $setup = (Get-ChildItem 'dist/*-windows-x64-light-setup.exe').FullName
-          $update = Start-Process $setup -ArgumentList '/VERYSILENT','/NORESTART','/BUBBLEUPDATE=1',"/DIR=`"$install`"" -Wait -PassThru
+          $updateLog = Join-Path $env:RUNNER_TEMP 'bubble-update-install.log'
+          $update = Start-Process $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/BUBBLEUPDATE=1',"/LOG=`"$updateLog`"","/DIR=`"$install`"" -PassThru
+          if (!$update.WaitForExit(120000)) { $update.Kill(); Get-Content $updateLog -Tail 80; throw 'Automatic installer timed out' }
           if ($update.ExitCode -ne 0) { throw 'Automatic update install failed' }
           $ready = $false
           for ($attempt = 0; $attempt -lt 30; $attempt++) {
