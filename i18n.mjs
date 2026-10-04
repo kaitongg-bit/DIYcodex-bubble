@@ -1,5 +1,16 @@
 // UI text only: language changes never save or apply a bubble.
 export const english = {
+  "打开所选素材文件夹 ↗": "Open selected asset folder ↗",
+  "应用到我的工坊 ↗": "Import into my studio ↗",
+  "先打开电脑上的 DIY Codex Bubble（v0.2.9 或更新），再点击导入；未安装？": "Open DIY Codex Bubble v0.2.9 or newer on your computer first, then import. Not installed?",
+  "下载工坊": "Download studio",
+  "正在导入社区气泡…": "Importing gallery bubble…",
+  "PNG 和设置已导入，预览后点击应用": "PNG and settings imported. Preview, then click Apply.",
+  "请先选择一款气泡": "Select a bubble first",
+
+  "后台工坊版本过旧。请重新打开新安装的 DIY Codex Bubble，再刷新此页面。": "The workshop service is outdated. Reopen the newly installed DIY Codex Bubble, then refresh this page.",
+  "选择 {platform} 应用位置…": "Locate {platform} app…",
+  "已记住应用位置，请重新应用或启动气泡": "App location saved. Apply your bubble or restart the app.",
   "豆包": "Doubao",
   "发送消息给 {platform}": "Message {platform}",
   "换肤应用": "Target app",
