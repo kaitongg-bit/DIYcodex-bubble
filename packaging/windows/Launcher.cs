@@ -62,7 +62,7 @@ internal static class Launcher {
             // Adding the app directory explicitly also works with isolated embedded Python.
             string command="import runpy,sys; sys.path.insert(0,sys.argv[1]); sys.argv=sys.argv[2:]; runpy.run_path(sys.argv[0],run_name='__main__')";
             var info=new ProcessStartInfo(python,"-X utf8 -c \""+command+"\" \""+Path.Combine(root,"app")+"\" \""+script+"\""+(restore?"":" --studio"));
-            info.WorkingDirectory=root;info.UseShellExecute=false;info.CreateNoWindow=true;info.RedirectStandardError=true;
+            info.WorkingDirectory=root;info.UseShellExecute=false;info.CreateNoWindow=true;info.RedirectStandardError=true;info.StandardErrorEncoding=System.Text.Encoding.UTF8;
             info.EnvironmentVariables["BUBBLE_STUDIO_DATA"]=data;
             info.EnvironmentVariables["BUBBLE_STUDIO_NODE"]=node;
             using(var process=Process.Start(info)) {

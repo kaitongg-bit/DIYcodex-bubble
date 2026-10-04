@@ -14,7 +14,8 @@ internal static class RuntimeBootstrap {
     internal static string Probe(string executable, bool python, string prefix = "") {
         try {
             var args = python ? "-c \"import sys,ssl,urllib.request; assert (3,10)<=sys.version_info[:2]<(4,0); print(sys.executable)\"" : "-e \"if(Number(process.versions.node.split('.')[0])<22||typeof WebSocket!=='function'||typeof fetch!=='function')process.exit(1);console.log(process.execPath)\"";
-            var info = new ProcessStartInfo(executable, prefix + args) { UseShellExecute=false, CreateNoWindow=true, RedirectStandardOutput=true, RedirectStandardError=true };
+            var info = new ProcessStartInfo(executable, prefix + args) { UseShellExecute=false, CreateNoWindow=true, RedirectStandardOutput=true, RedirectStandardError=true, StandardOutputEncoding=System.Text.Encoding.UTF8, StandardErrorEncoding=System.Text.Encoding.UTF8 };
+            info.EnvironmentVariables["PYTHONUTF8"]="1";
             using (var process = Process.Start(info)) {
                 if (!process.WaitForExit(5000)) { process.Kill(); return null; }
                 string path = process.StandardOutput.ReadToEnd().Trim();
