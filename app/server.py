@@ -5,10 +5,12 @@ from pathlib import Path
 import json,struct,hashlib,base64,subprocess,shutil,os,threading,time,argparse,uuid,sys
 from autostart import enabled as autostart_enabled, configure as configure_autostart
 from windows_apps import find_candidates, choose_executable
+from updater import Updater
 ROOT=Path(__file__).resolve().parent.parent
 DATA=Path(os.environ.get('BUBBLE_STUDIO_DATA',str(ROOT/'.local')))
 DATA.mkdir(parents=True,exist_ok=True)
 STATE=DATA/'state.json'
+UPDATER=Updater(ROOT,DATA)
 LOCK=threading.RLock()
 STOP=threading.Event()
 DEFAULT={'folders':[],'presets':{},'favorites':[],'active':None,'debugPort':19327,'trash':[],'galleryDownloads':{}}
@@ -227,6 +229,7 @@ class Handler(BaseHTTPRequestHandler):
   self.send_response(code);self.send_header('Content-Type',kind);self.send_header('Cache-Control','no-store');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
  def do_GET(self):
   path=self.path.split('?')[0]
+  if path=='/api/update':return self.send(UPDATER.status())
   if path=='/api/library':
    with LOCK:s=clean_trash(state());seed_presets(s);items=library(s)
    for item in items:item.pop('path')
@@ -277,6 +280,8 @@ class Handler(BaseHTTPRequestHandler):
      if s['platform']!=key:raise ValueError('平台已切换，请刷新后重试')
      s['platforms'][key]['applicationPath']=str(executable);save(s)
     return self.send({'ok':True,'platform':key})
+   if self.path in ('/api/update/check','/api/update/install'):
+    return self.send(UPDATER.start('check' if self.path.endswith('/check') else 'install'))
    if self.path=='/api/choose-folder':
     selected=choose_folder(self.headers.get('Accept-Language','zh'))
     if not selected:return self.send({'ok':True,'cancelled':True})

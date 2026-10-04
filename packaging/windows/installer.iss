@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "0.2.9"
+  #define AppVersion "0.2.10"
 #endif
 #ifndef StageName
   #define StageName "windows-light"
@@ -41,7 +41,9 @@ Name: "{group}\DIY Codex Bubble"; Filename: "{app}\DIY Codex Bubble.exe"; Workin
 Name: "{autodesktop}\DIY Codex Bubble"; Filename: "{app}\DIY Codex Bubble.exe"; WorkingDir: "{app}"
 
 [Run]
-Filename: "{app}\DIY Codex Bubble.exe"; Description: "Open DIY Codex Bubble / 打开气泡工坊"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\DIY Codex Bubble.exe"; Description: "Open DIY Codex Bubble / 打开气泡工坊"; Flags: nowait postinstall skipifsilent; Check: not IsBubbleUpdate
+
+Filename: "{app}\DIY Codex Bubble.exe"; Flags: nowait; Check: IsBubbleUpdate
 
 [UninstallRun]
 Filename: "{app}\DIY Codex Bubble.exe"; Parameters: "--uninstall-startup"; Flags: runhidden; RunOnceId: "RemoveOwnedStartup"
@@ -51,6 +53,11 @@ Filename: "{app}\DIY Codex Bubble.exe"; Parameters: "--uninstall-startup"; Flags
 Type: filesandordirs; Name: "{app}\runtime"
 
 [Code]
+function IsBubbleUpdate: Boolean;
+begin
+  Result := ExpandConstant('{param:BUBBLEUPDATE|0}') = '1';
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   ExitCode: Integer;

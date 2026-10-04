@@ -5,7 +5,7 @@ on:
       version:
         description: Release version without v
         required: true
-        default: '0.2.9'
+        default: '0.2.10'
 permissions:
   contents: read
 jobs:
@@ -29,6 +29,7 @@ jobs:
           python -c "import sys,unittest; sys.path.insert(0,'tests'); import test_server; names=[n for n in unittest.defaultTestLoader.getTestCaseNames(test_server.StudioTests) if n.startswith('test_windows_') or n in ('test_platform_isolation_switch_restore_and_delete','test_real_folder_and_independent_presets','test_frontend_element_references_exist_after_ui_removal','test_login_autostart_registration_is_per_user_and_reversible')]; result=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(test_server.StudioTests(n) for n in names)); sys.exit(not result.wasSuccessful())"
           python -m unittest discover -s tests -p test_windows_package.py -q
           python -m unittest discover -s tests -p test_windows_apps.py -q
+          python -m unittest discover -s tests -p test_updater.py -q
       - name: Build application and portable ZIP
         env:
           BUILD_VERSION: ${{ inputs.version }}
@@ -99,6 +100,19 @@ jobs:
             # Keep the old service running during upgrade to reproduce real file locks.
             # Also leave the light service running to verify uninstall cleanup.
           }
+          # The updater's silent install flag must restart the studio without a manual click.
+          $beforeUpdate = (Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*$install*app*server.py*" }).ProcessId
+          $setup = (Get-ChildItem 'dist/*-windows-x64-light-setup.exe').FullName
+          $update = Start-Process $setup -ArgumentList '/VERYSILENT','/NORESTART','/BUBBLEUPDATE=1',"/DIR=`"$install`"" -Wait -PassThru
+          if ($update.ExitCode -ne 0) { throw 'Automatic update install failed' }
+          $ready = $false
+          for ($attempt = 0; $attempt -lt 30; $attempt++) {
+            Start-Sleep -Seconds 1
+            try { $version = Invoke-RestMethod http://127.0.0.1:19329/api/update; if ($version.current -eq '0.2.10') { $ready = $true; break } } catch {}
+          }
+          if (!$ready) { throw 'Automatic update did not reopen studio' }
+          $afterUpdate = (Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*$install*app*server.py*" }).ProcessId
+          if (!$afterUpdate -or $afterUpdate -eq $beforeUpdate) { throw 'Automatic update reused old service' }
           $process = Start-Process (Join-Path $install 'unins000.exe') -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw 'Uninstall failed' }
           if ($unrelated.HasExited) { throw 'Uninstaller stopped unrelated Python' }

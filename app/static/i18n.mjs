@@ -1,5 +1,23 @@
 // UI text only: language changes never save or apply a bubble.
 export const english = {
+ "工坊未能自动重开，请打开应用或查看下载页": "The studio did not restart. Open the app or visit the downloads page.",
+ "检查更新": "Check for updates",
+ "工坊更新": "Studio update",
+ "下载并更新": "Download and update",
+ "替换旧程序，保留气泡、设置和收藏。更新时工坊会短暂重启。": "Replace the old app, keeping your bubbles, settings and favorites. The studio will briefly restart.",
+ "前往下载页 ↗": "Open downloads ↗",
+ "点击检查更新": "Check for updates",
+ "正在检查更新…": "Checking for updates…",
+ "当前已是最新版本": "You are up to date",
+ "发现新版本 {version}": "Version {version} is available",
+ "正在下载更新 {progress}%": "Downloading update {progress}%",
+ "正在替换旧程序，请稍候…": "Replacing the app, please wait…",
+ "更新完成，请刷新工坊页面": "Update complete. Refresh the studio.",
+ "当前版本 {version}": "Current version {version}",
+ "正在重启工坊，请稍候…": "Restarting the studio, please wait…",
+ "请先保存气泡设置": "Save your bubble settings first",
+ "请先保存气泡设置。继续检查更新？": "Save your bubble settings first. Continue checking?",
+
   "打开所选素材文件夹 ↗": "Open selected asset folder ↗",
   "应用到我的工坊 ↗": "Import into my studio ↗",
   "先打开电脑上的 DIY Codex Bubble（v0.2.9 或更新），再点击导入；未安装？": "Open DIY Codex Bubble v0.2.9 or newer on your computer first, then import. Not installed?",

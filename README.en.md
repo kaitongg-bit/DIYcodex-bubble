@@ -85,6 +85,8 @@ The installed Windows app stores settings and logs in `%LOCALAPPDATA%\DIY Codex 
 
 ## Usage
 
+Click **Check for updates** in the studio header, then **Download and update**. Installed Mac apps and Windows installer editions verify the package, replace the app and reopen the studio, keeping bubbles, settings and favorites. Source checkouts and portable editions link to downloads.
+
 Open the installed studio, then click **Import into my studio** in the online gallery to import both the PNG and settings into a dedicated community folder. Preview before applying to Codex / Doubao. **Open selected asset folder** reveals the image folder. Renaming an external PNG changes its display name, but saved settings are tied to its path; keep tuned filenames unchanged.
 
 ### One studio, two apps
