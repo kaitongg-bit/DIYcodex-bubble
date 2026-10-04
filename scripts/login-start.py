@@ -1,6 +1,7 @@
 """Silent login entry point: start local service, then restore saved apps."""
 from pathlib import Path
 import json
+import hashlib
 import os
 import subprocess
 import sys
@@ -10,6 +11,12 @@ import webbrowser
 
 ROOT = Path(__file__).resolve().parents[1]
 URL = 'http://127.0.0.1:19329'
+API_VERSION=2
+
+def verify_service(status):
+ expected=hashlib.sha256(os.path.normcase(str(ROOT.resolve())).encode()).hexdigest()
+ if status.get('apiVersion')!=API_VERSION or status.get('instance')!=expected:
+  raise RuntimeError('19329 端口上的旧工坊与当前版本不一致。请重启电脑后，打开新安装的 DIY Codex Bubble，再刷新网页。 / A different or outdated workshop is running. Restart Windows, open the newly installed DIY Codex Bubble, then refresh the page.')
 
 
 def request(path, body=None):
@@ -26,16 +33,17 @@ def main(open_studio=False):
   os.environ['BUBBLE_STUDIO_NODE']=str(ROOT/'runtime/node/node.exe')
  os.environ['PATH']=os.pathsep.join(['/opt/homebrew/bin','/usr/local/bin',os.environ.get('PATH','')])
  local=Path(os.environ.get('BUBBLE_STUDIO_DATA',str(ROOT/'.local')));local.mkdir(parents=True,exist_ok=True)
- try:request('/api/status')
+ try:status=request('/api/status')
  except Exception:
   with (local/'studio.log').open('a',encoding='utf-8') as log:
    kwargs={'start_new_session':True} if sys.platform=='darwin' else {'creationflags':subprocess.CREATE_NEW_PROCESS_GROUP|subprocess.DETACHED_PROCESS}
    subprocess.Popen([sys.executable,'-X','utf8',str(ROOT/'app/server.py')],cwd=ROOT,stdin=subprocess.DEVNULL,stdout=log,stderr=log,**kwargs)
   for _ in range(50):
    time.sleep(.2)
-   try:request('/api/status');break
+   try:status=request('/api/status');break
    except Exception:pass
   else:raise RuntimeError('Bubble Studio local service did not start')
+ verify_service(status)
  if open_studio:
   setup=request('/api/first-run',{})
   if setup.get('firstRun'):

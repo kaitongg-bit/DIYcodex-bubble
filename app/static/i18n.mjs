@@ -1,5 +1,6 @@
 // UI text only: language changes never save or apply a bubble.
 export const english = {
+  "后台工坊版本过旧。请重新打开新安装的 DIY Codex Bubble，再刷新此页面。": "The workshop service is outdated. Reopen the newly installed DIY Codex Bubble, then refresh this page.",
   "选择 {platform} 应用位置…": "Locate {platform} app…",
   "已记住应用位置，请重新应用或启动气泡": "App location saved. Apply your bubble or restart the app.",
   "豆包": "Doubao",

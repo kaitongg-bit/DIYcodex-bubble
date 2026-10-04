@@ -87,6 +87,8 @@ internal static class Launcher {
             if(string.Equals(python,Path.Combine(cache,"python","python.exe"),StringComparison.OrdinalIgnoreCase))
                 File.WriteAllText(Path.Combine(cache,"python","python313._pth"),"python313.zip\n.\n"+Path.Combine(root,"app")+"\n"+root+"\n");
             bool restore=Array.IndexOf(args,"--restore")>=0;
+            // Reopening the app replaces this installation’s stale background code.
+            if(!restore)StopOwnedService(root);
             // Adding the app directory explicitly also works with isolated embedded Python.
             string command="import runpy,sys; sys.path.insert(0,sys.argv[1]); sys.argv=sys.argv[2:]; runpy.run_path(sys.argv[0],run_name='__main__')";
             var info=new ProcessStartInfo(python,"-X utf8 -c \""+command+"\" \""+Path.Combine(root,"app")+"\" \""+script+"\""+(restore?"":" --studio"));

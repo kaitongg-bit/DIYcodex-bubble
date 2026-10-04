@@ -15,6 +15,8 @@ DEFAULT={'folders':[],'presets':{},'favorites':[],'active':None,'debugPort':1932
 PLATFORMS={'codex':{'name':'Codex','debugPort':19327,'apps':['/Applications/ChatGPT.app/Contents/MacOS/ChatGPT','/Applications/Codex.app/Contents/MacOS/Codex']},'doubao':{'name':'豆包','debugPort':19326,'apps':['/Applications/Doubao.app/Contents/MacOS/Doubao']}}
 STATUSES={key:{'connected':False,'matched':0} for key in PLATFORMS}
 PORT=19329
+API_VERSION=2
+INSTANCE=hashlib.sha256(os.path.normcase(str(ROOT.resolve())).encode()).hexdigest()
 NAMES={'cat-big-paw-scruffy':'毛茸茸猫咪 · 大爪子','cat-big-paw-doodle':'涂鸦猫咪 · 大爪子','chef-cat-wok-doodle':'猫咪主厨','onigiri-cat-doodle':'饭团猫咪','guangdong-stool':'广东小板凳','rippled-glass-nine-slice':'水波玻璃','mondrian-painting':'蒙德里安画框','mondrian':'蒙德里安','colorful-happy-doodle':'彩色快乐涂鸦','happy-stickman':'快乐小人','love-square-charcoal':'LOVE 方形炭笔','love-charcoal':'LOVE 炭笔'}
 def state():
  try:s={**json.loads(json.dumps(DEFAULT)),**json.loads(STATE.read_text(encoding='utf-8'))}
@@ -197,7 +199,7 @@ class Handler(BaseHTTPRequestHandler):
   if path=='/api/library':
    with LOCK:s=clean_trash(state());seed_presets(s);items=library(s)
    for item in items:item.pop('path')
-   return self.send({'items':items,'folders':s['folders'],'activeId':s['active']['id'] if s['active'] else None,'preferredId':s.get('preferredId'),'trashCount':len(s.get('trash',[])),'latestTrashId':s['trash'][-1]['token'] if s.get('trash') else None,'status':status_for(s),'platform':s['platform']})
+   return self.send({'apiVersion':API_VERSION,'instance':INSTANCE,'supportsChooseApp':sys.platform=='win32','items':items,'folders':s['folders'],'activeId':s['active']['id'] if s['active'] else None,'preferredId':s.get('preferredId'),'trashCount':len(s.get('trash',[])),'latestTrashId':s['trash'][-1]['token'] if s.get('trash') else None,'status':status_for(s),'platform':s['platform']})
   if path=='/api/gallery':
    s=state();items=bundled_presets()
    for item in items:item.pop('path');item['downloads']=s.get('galleryDownloads',{}).get(item['id'],0)
@@ -207,7 +209,7 @@ class Handler(BaseHTTPRequestHandler):
    if not item:return self.send({'error':'素材不存在'},404)
    return self.send(Path(item['path']).read_bytes(),kind='image/png')
   if path=='/api/status':
-   s=state();return self.send({**status_for(s),'activeId':s['active']['id'] if s['active'] else None,'platform':s['platform']})
+   s=state();return self.send({'apiVersion':API_VERSION,'instance':INSTANCE,**status_for(s),'activeId':s['active']['id'] if s['active'] else None,'platform':s['platform']})
   if path=='/api/autostart':return self.send({'enabled':autostart_enabled()})
   if path.startswith('/asset/'):
    item=next((x for x in library() if x['id']==path[7:]),None)

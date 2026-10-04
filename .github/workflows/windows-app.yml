@@ -5,7 +5,7 @@ on:
       version:
         description: Release version without v
         required: true
-        default: '0.2.7'
+        default: '0.2.8'
 permissions:
   contents: read
 jobs:
@@ -80,6 +80,14 @@ jobs:
             $process = Start-Process $launcher -PassThru
             if (!$process.WaitForExit(60000)) { $process.Kill(); throw 'Launcher timed out' }
             if ($process.ExitCode -ne 0) { throw 'Launcher failed' }
+            $identity = Invoke-RestMethod http://127.0.0.1:19329/api/status
+            if ($identity.apiVersion -ne 2) { throw 'Outdated backend reused' }
+            # Opening the EXE again must replace this installation's background service.
+            $oldPid = (Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*$install*app*server.py*" }).ProcessId
+            $again = Start-Process $launcher -PassThru
+            if (!$again.WaitForExit(60000) -or $again.ExitCode -ne 0) { throw 'Workshop reopen failed' }
+            $newPid = (Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*$install*app*server.py*" }).ProcessId
+            if (!$newPid -or $newPid -eq $oldPid) { throw 'Stale background process reused' }
             $status = Invoke-RestMethod http://127.0.0.1:19329/api/library
             if ($status.items.Count -lt 3) { throw 'Built-in presets missing' }
             Write-Output "$variant EXE opened the workshop; $($status.items.Count) presets loaded"

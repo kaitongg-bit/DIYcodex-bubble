@@ -87,3 +87,5 @@ DMG 不包含 `.git`，作者审核发布必须连接独立的源码 checkout。
 Build with `scripts/build-windows-app.py --version VERSION --light` for the small build, without `--light` for offline. Inno Setup accepts `StageName=windows-light`, `Variant=light`, or `windows-app` / `offline`. Both share an application ID, so upgrades preserve settings. Upgrading to light removes obsolete bundled runtimes. The per-user startup entry invokes the EXE with `--restore`, so it checks runtimes again; uninstall removes only the owned startup entry and preserves the cache and settings. Windows CI verifies runtime reuse, fresh verified downloads, cached Python imports, offline-to-light upgrade, launcher startup, and uninstall.
 
 Windows 安装器会从临时目录执行当前版本的 C# 升级辅助程序，通过进程可执行文件名和完整工坊脚本路径确认归属，只结束此安装目录的服务、启动脚本与短暂的注入桥进程；不按 `python.exe` 名称批量关闭，不关闭 Codex 或豆包。验收保留旧后台服务运行后直接升级，并验证无关的 Python 进程继续运行。卸载也只关闭本安装目录的服务并移除其启动项。
+
+工坊 API 状态与素材列表包含协议版本和安装目录标识；启动脚本只复用同版本、同目录的后台，不复用占用同一端口的未知服务。Windows 从应用入口打开工坊时，会先重启本安装目录的服务，确保运行新代码；开机恢复不会反复重启服务。

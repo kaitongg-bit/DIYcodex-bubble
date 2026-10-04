@@ -23,6 +23,12 @@ class StudioTests(unittest.TestCase):
   r=urllib.request.Request(self.base+path,data=None if body is None else json.dumps(body).encode(),headers=headers)
   with urllib.request.urlopen(r) as response:return json.load(response)
  def connect(self):self.request('/api/folder',{'path':str(self.folder)});return self.request('/api/library')['items']
+ def test_status_identifies_backend_and_picker_capability(self):
+  status=self.request('/api/status');data=self.request('/api/library')
+  self.assertEqual(status['apiVersion'],2)
+  self.assertEqual(status['instance'],server.INSTANCE)
+  self.assertEqual(data['apiVersion'],2)
+  self.assertEqual(data['supportsChooseApp'],sys.platform=='win32')
  def test_real_folder_and_independent_presets(self):
   items=self.connect();self.assertEqual(len(items),2);a,b=items;original=(self.folder/'one.png').read_bytes();c={**a['config'],'left':60,'right':120}
   self.request('/api/save',{'id':a['id'],'config':c});loaded=self.request('/api/library')['items'];self.assertEqual(loaded[0]['config']['left'],60);self.assertEqual(loaded[1]['config'],b['config']);self.assertEqual((self.folder/'one.png').read_bytes(),original)
@@ -79,12 +85,12 @@ class StudioTests(unittest.TestCase):
   script=Path(__file__).resolve().parents[1]/'scripts/login-start.py'
   spec=importlib.util.spec_from_file_location('bubble_login_start',script)
   module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-  with patch.object(module,'request',side_effect=[{}, {'firstRun':False}]) as request,patch.object(module.subprocess,'run') as run,patch.object(module.webbrowser,'open') as browser:
+  with patch.object(module,'request',side_effect=[{'apiVersion':2,'instance':server.INSTANCE}, {'firstRun':False}]) as request,patch.object(module.subprocess,'run') as run,patch.object(module.webbrowser,'open') as browser:
    module.main(open_studio=True)
   request.assert_has_calls([call('/api/status'),call('/api/first-run',{})])
   run.assert_called_once_with(['/usr/bin/open',module.URL],check=True)
   browser.assert_not_called()
-  with patch.object(module.sys,'platform','win32'),patch.object(module,'request',return_value={}),patch.object(module.webbrowser,'open') as browser:
+  with patch.object(module.sys,'platform','win32'),patch.object(module,'request',return_value={'apiVersion':2,'instance':server.INSTANCE}),patch.object(module.webbrowser,'open') as browser:
    module.main(open_studio=True)
   browser.assert_called_once_with(module.URL)
  def test_login_autostart_registration_is_per_user_and_reversible(self):
