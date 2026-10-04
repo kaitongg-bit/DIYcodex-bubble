@@ -6,6 +6,31 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 internal static class Launcher {
+    internal static bool IsOwnedProcess(string root, string executable, string command) {
+        if(string.IsNullOrEmpty(executable)||string.IsNullOrEmpty(command))return false;
+        string name=Path.GetFileName(executable).ToLowerInvariant();
+        if(name!="python.exe"&&name!="pythonw.exe"&&name!="node.exe")return false;
+        foreach(string script in new[]{"app/server.py","scripts/login-start.py","app/bridge.mjs"}) {
+            string path=Path.Combine(root,script.Replace('/',Path.DirectorySeparatorChar));
+            if(command.Replace('/',Path.DirectorySeparatorChar).IndexOf("\""+path+"\"",StringComparison.OrdinalIgnoreCase)>=0 ||
+               command.Replace('/',Path.DirectorySeparatorChar).IndexOf(" "+path+" ",StringComparison.OrdinalIgnoreCase)>=0 ||
+               command.Replace('/',Path.DirectorySeparatorChar).EndsWith(" "+path,StringComparison.OrdinalIgnoreCase))return true;
+        }
+        return false;
+    }
+    internal static void StopOwnedService(string root) {
+        root=Path.GetFullPath(root);
+        if(!File.Exists(Path.Combine(root,"app","server.py")))return;
+        using(var search=new System.Management.ManagementObjectSearcher("SELECT ProcessId, ExecutablePath, CommandLine FROM Win32_Process WHERE Name='python.exe' OR Name='pythonw.exe' OR Name='node.exe'"))
+        using(var items=search.Get()) foreach(System.Management.ManagementObject item in items) {
+            using(item) {
+                if(!IsOwnedProcess(root,item["ExecutablePath"] as string,item["CommandLine"] as string))continue;
+                try { using(var process=Process.GetProcessById(Convert.ToInt32(item["ProcessId"]))) {
+                    process.Kill();if(!process.WaitForExit(5000))throw new Exception("工坊后台服务未能退出 / Workshop service did not exit");
+                }} catch(ArgumentException) {} // The short-lived bridge may have exited already.
+            }
+        }
+    }
     internal static void MigrateStartup(string root, string startup) {
         if(!File.Exists(startup))return;
         string content=File.ReadAllText(startup);
@@ -18,6 +43,7 @@ internal static class Launcher {
     private static int Main(string[] args) {
         try {
             string root = AppDomain.CurrentDomain.BaseDirectory;
+            if(args.Length==2&&args[0]=="--stop-owned-service") { StopOwnedService(args[1]);return 0; }
             if(Array.IndexOf(args,"--uninstall-startup")>=0) {
                 string startup=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup),"DIY Codex Bubble Restore.vbs");
                 if(File.Exists(startup)&&File.ReadAllText(startup).Contains(root.TrimEnd(Path.DirectorySeparatorChar)))File.Delete(startup);

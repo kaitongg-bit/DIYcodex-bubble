@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "0.2.6"
+  #define AppVersion "0.2.7"
 #endif
 #ifndef StageName
   #define StageName "windows-light"
@@ -33,6 +33,7 @@ RestartApplications=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
+Source: "..\..\dist\{#StageName}\DIY Codex Bubble.exe"; DestName: "Bubble Upgrade Helper.exe"; Flags: dontcopy
 Source: "..\..\dist\{#StageName}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
@@ -48,3 +49,16 @@ Filename: "{app}\DIY Codex Bubble.exe"; Parameters: "--uninstall-startup"; Flags
 [InstallDelete]
 ; Remove obsolete bundled runtimes when upgrading to the online build.
 Type: filesandordirs; Name: "{app}\runtime"
+
+[Code]
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  ExitCode: Integer;
+begin
+  Result := '';
+  ExtractTemporaryFile('Bubble Upgrade Helper.exe');
+  if not Exec(ExpandConstant('{tmp}\Bubble Upgrade Helper.exe'),
+    '--stop-owned-service "' + ExpandConstant('{app}') + '"', '', SW_HIDE,
+    ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
+    Result := 'Cannot stop the workshop background service. Restart Windows and try again. / 无法关闭工坊后台服务，请重启 Windows 后再安装。';
+end;

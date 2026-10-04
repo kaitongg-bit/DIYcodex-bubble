@@ -3,6 +3,9 @@ using System.IO;
 internal static class RuntimeBootstrapTests {
     static int Main(string[] args) {
         string root=args[0],cache=args[1];
+        if(!Launcher.IsOwnedProcess(root,"C:\\Python\\python.exe","python.exe \""+Path.Combine(root,"app","server.py")+"\""))throw new Exception("Owned service not detected");
+        if(Launcher.IsOwnedProcess(root,"C:\\Python\\python.exe","python.exe C:\\Other\\server.py"))throw new Exception("Unrelated Python selected");
+        if(Launcher.IsOwnedProcess(root,"C:\\Other\\app.exe","app.exe \""+Path.Combine(root,"app","server.py")+"\""))throw new Exception("Unrelated application selected");
         string startup=cache+"-startup.vbs";
         File.WriteAllText(startup,"Set shell = CreateObject(\"WScript.Shell\")\r\n"+root+"\\scripts\\login-start.py");
         Launcher.MigrateStartup(root,startup);

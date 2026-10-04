@@ -59,7 +59,7 @@ def main():
     import os
     csc = Path(os.environ['WINDIR']) / 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
     subprocess.run([str(csc), '/nologo', '/target:winexe', '/platform:x64',
-        '/reference:System.Windows.Forms.dll', '/reference:System.IO.Compression.dll',
+        '/reference:System.Windows.Forms.dll', '/reference:System.Management.dll', '/reference:System.IO.Compression.dll',
         '/reference:System.IO.Compression.FileSystem.dll', f'/win32icon:{stage / "assets/AppIcon.ico"}',
         f'/out:{stage / "DIY Codex Bubble.exe"}', str(ROOT / 'packaging/windows/Launcher.cs'), str(ROOT / 'packaging/windows/RuntimeBootstrap.cs')], check=True)
     # Portable app is also useful for machines where installation is restricted.

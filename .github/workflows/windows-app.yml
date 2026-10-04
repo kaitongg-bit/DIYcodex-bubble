@@ -5,7 +5,7 @@ on:
       version:
         description: Release version without v
         required: true
-        default: '0.2.6'
+        default: '0.2.7'
 permissions:
   contents: read
 jobs:
@@ -38,7 +38,7 @@ jobs:
       - name: Verify runtime reuse and fresh downloads
         run: |
           $csc = "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
-          & $csc /nologo /main:RuntimeBootstrapTests /reference:System.Windows.Forms.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "/out:$pwd\dist\runtime-tests.exe" (Resolve-Path packaging/windows/RuntimeBootstrap.cs).Path (Resolve-Path packaging/windows/RuntimeBootstrapTests.cs).Path (Resolve-Path packaging/windows/Launcher.cs).Path
+          & $csc /nologo /main:RuntimeBootstrapTests /reference:System.Windows.Forms.dll /reference:System.Management.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "/out:$pwd\dist\runtime-tests.exe" (Resolve-Path packaging/windows/RuntimeBootstrap.cs).Path (Resolve-Path packaging/windows/RuntimeBootstrapTests.cs).Path (Resolve-Path packaging/windows/Launcher.cs).Path
           if ($LASTEXITCODE -ne 0) { throw 'Bootstrap test compilation failed' }
           & dist/runtime-tests.exe (Resolve-Path dist/windows-light).Path (Join-Path $env:RUNNER_TEMP 'bubble-bootstrap-test')
           if ($LASTEXITCODE -ne 0) { throw 'Runtime resolution tests failed' }
@@ -86,7 +86,10 @@ jobs:
             $startup = Join-Path ([Environment]::GetFolderPath('Startup')) 'DIY Codex Bubble Restore.vbs'
             if (!(Test-Path $startup)) { throw 'Automatic restore entry missing' }
             if (!(Get-Content $startup -Raw).Contains('DIY Codex Bubble.exe')) { throw 'Startup bypasses runtime bootstrap' }
-            Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*$install*app*server.py*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+            # Keep the old service running during upgrade to reproduce real file locks.
+            if ($variant -eq 'light') {
+              Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*$install*app*server.py*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+            }
           }
           $process = Start-Process (Join-Path $install 'unins000.exe') -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw 'Uninstall failed' }
