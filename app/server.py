@@ -29,6 +29,7 @@ def save(s):
   if 'platforms' in s:s['platforms'][s.get('platform','codex')]['active']=s.get('active')
   tmp=DATA/'state.tmp';tmp.write_text(json.dumps(s,ensure_ascii=False,indent=2),encoding='utf-8');tmp.replace(STATE)
 def status_for(s):return STATUSES[s['platform']]
+def hidden_process():return {'creationflags':getattr(subprocess,'CREATE_NO_WINDOW',0)} if sys.platform=='win32' else {}
 def clean_trash(s):
  remaining=[entry for entry in s.get('trash',[]) if Path(entry['stored']).is_file()]
  if remaining!=s.get('trash',[]):s['trash']=remaining;save(s)
@@ -40,7 +41,7 @@ def choose_folder(language="zh"):
    prompt='Choose your bubble asset folder' if language.startswith('en') else '选择气泡素材文件夹'
    script="[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new(); Add-Type -AssemblyName System.Windows.Forms; $dialog = New-Object System.Windows.Forms.FolderBrowserDialog; $dialog.Description = '"+prompt+"'; try { if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { ConvertTo-Json -Compress -InputObject $dialog.SelectedPath } else { ConvertTo-Json -Compress -InputObject '' } } finally { $dialog.Dispose() }"
    encoded=base64.b64encode(script.encode('utf-16le')).decode('ascii')
-   result=subprocess.run(['powershell.exe','-NoProfile','-STA','-EncodedCommand',encoded],capture_output=True,text=True,encoding='utf-8')
+   result=subprocess.run(['powershell.exe','-NoProfile','-STA','-EncodedCommand',encoded],capture_output=True,text=True,encoding='utf-8',**hidden_process())
    if result.returncode:raise ValueError('无法打开文件夹选择窗口，请重试')
    return json.loads(result.stdout.strip().lstrip('\ufeff'))
   root=Tk();root.withdraw();root.attributes('-topmost',True)
@@ -131,7 +132,7 @@ def node_path():
  raise ValueError('请安装 Node.js 22 或以上版本')
 def bridge(action,platform="codex"):
  try:
-  result=subprocess.run([node_path(),str(ROOT/'app/bridge.mjs'),str(STATE),action,platform],capture_output=True,text=True,encoding='utf-8',timeout=12)
+  result=subprocess.run([node_path(),str(ROOT/'app/bridge.mjs'),str(STATE),action,platform],capture_output=True,text=True,encoding='utf-8',timeout=12,**hidden_process())
   return json.loads(result.stdout) if result.returncode==0 else {'connected':False,'matched':0,'message':'应用连接失败'}
  except Exception:return {'connected':False,'matched':0,'message':'应用连接暂不可用'}
 def review_cli(*args):
@@ -158,11 +159,12 @@ def windows_store_apps(key):
  # Use only packages from the expected publisher; do not launch similarly named third-party apps.
  filter_script="Get-AppxPackage | Where-Object { $_.Publisher -match 'OpenAI' -and $_.Name -match 'ChatGPT|Codex|OpenAI' }" if key=='codex' else "Get-AppxPackage | Where-Object { $_.Name -match 'Doubao' -and $_.Publisher -match 'ByteDance|Bytedance|Doubao' }"
  script=f"{filter_script} | ForEach-Object {{ $p=$_; [xml]$m=(Get-AppxPackageManifest -Package $p.PackageFullName); foreach($a in $m.Package.Applications.Application) {{ if($a.Executable) {{ Join-Path $p.InstallLocation $a.Executable }} }} }}"
- result=subprocess.run(['powershell.exe','-NoProfile','-Command',script],capture_output=True,text=True,timeout=15)
+ script='[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new(); '+script
+ result=subprocess.run(['powershell.exe','-NoProfile','-Command',script],capture_output=True,text=True,encoding='utf-8',timeout=15,**hidden_process())
  if result.returncode:return []
  return [p for line in result.stdout.splitlines() if (p:=Path(line.strip())).is_file()]
 def windows_running_names():
- result=subprocess.run(['tasklist.exe','/fo','csv','/nh'],capture_output=True,text=True,check=True,timeout=10)
+ result=subprocess.run(['tasklist.exe','/fo','csv','/nh'],capture_output=True,text=True,encoding='oem',errors='replace',check=True,timeout=10,**hidden_process())
  import csv,io
  return {row[0].casefold() for row in csv.reader(io.StringIO(result.stdout)) if row}
 def launch_platform(key,s):
