@@ -72,3 +72,5 @@ node --check app/static/app.js
 ## Anonymous submission intake
 
 See [community/DEPLOYMENT.md](community/DEPLOYMENT.md) for Worker secrets, Turnstile, private queue, owner-only moderation and the verified local acceptance boundary. Regression tests: `node --test tests/submissions.test.mjs`.
+
+DMG 不包含 `.git`，作者审核发布必须连接独立的源码 checkout。在本机数据目录（macOS 为 `~/Library/Application Support/DIY Codex Bubble`）放置私有 `review.json`，格式为 `{"repository":"源码仓库绝对路径"}`；也可用 `BUBBLE_STUDIO_REVIEW_ROOT` 覆盖。此配置不随发布包分发。审核脚本从该仓库查找 gh-pages 工作树；需要时另设 `PAGES_WORKTREE`。普通用户无需配置审核台。

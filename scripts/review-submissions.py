@@ -11,6 +11,14 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+DATA = Path(os.environ.get('BUBBLE_STUDIO_DATA', str(ROOT / '.local')))
+REVIEW_CONFIG = DATA / 'review.json'
+if REVIEW_CONFIG.exists():
+    settings = json.loads(REVIEW_CONFIG.read_text())
+    if settings.get('repository'):
+        ROOT = Path(settings['repository']).expanduser().resolve()
+if os.environ.get('BUBBLE_STUDIO_REVIEW_ROOT'):
+    ROOT = Path(os.environ['BUBBLE_STUDIO_REVIEW_ROOT']).expanduser().resolve()
 QUEUE = 'kaitongg-bit/DIYcodex-bubble-submissions'
 APPROVED = ROOT / 'community' / 'approved'
 MANIFEST = APPROVED / 'manifest.json'
@@ -74,6 +82,8 @@ def mark(row, status, reason):
 
 
 def pages_worktree():
+    if not (ROOT / '.git').exists():
+        raise RuntimeError('审核发布需要连接作者的源码仓库；请在本机数据目录 review.json 中配置 repository。DMG 应用不包含 Git 仓库。')
     if os.environ.get('PAGES_WORKTREE'):
         path = Path(os.environ['PAGES_WORKTREE'])
     else:
