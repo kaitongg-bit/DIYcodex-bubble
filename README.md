@@ -64,7 +64,7 @@
 macOS 桌面应用已经实机验证；Windows 版的本机工坊、文件操作和启动流程已适配，但桌面气泡注入还需要 Windows 用户实机验收。需要 Python 3.9+ 和 Node.js 22+；暂不提供免安装运行环境的独立 App。
 
 1. [下载最新版 ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest)，解压到一个方便保留的位置。
-2. macOS 在 **Finder（访达）** 双击 `Start Bubble Studio.command`；Windows 在资源管理器双击 `Start Bubble Studio.cmd`。只需这样完成首次设置。
+2. 解压后如果不知道从哪里开始，macOS 双击顶部的 `START HERE.command`，Windows 双击 `START HERE.cmd`，文件管理器会直接选中首次启动文件。然后 macOS 双击 `Start Bubble Studio.command`；Windows 双击 `Start Bubble Studio.cmd`。只需这样完成首次设置。
 3. 首次运行会自动把内置 **外星小猫** 应用到 Codex，并开启「电脑开机后自动恢复」。如果 Codex 此前已普通启动，页面会提示先完全退出，再点「重新启动」；工坊不会强制关闭正在使用的应用。
 4. 之后可以直接用外星小猫，也可以在工坊里换图片、调拉伸线，或切换到豆包单独应用气泡。顶部「恢复默认」可随时撤销当前平台的换肤。
 
