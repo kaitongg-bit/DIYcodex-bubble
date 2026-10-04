@@ -61,20 +61,18 @@
 
 ## 快速开始
 
-macOS 桌面应用已经实机验证；Windows 版的本机工坊、文件操作和启动流程已适配，但桌面气泡注入还需要 Windows 用户实机验收。需要 Python 3.9+ 和 Node.js 22+；暂不提供免安装运行环境的独立 App。
+macOS 桌面应用已经实机验证；Windows 版的本机工坊、文件操作和启动流程已适配，但桌面气泡注入还需要 Windows 用户实机验收。
 
-1. [下载最新版 ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest)，解压到一个方便保留的位置。
-2. 解压后如果不知道从哪里开始，macOS 双击顶部的 `START HERE.command`，Windows 双击 `START HERE.cmd`，文件管理器会直接选中首次启动文件。然后 macOS 双击 `Start Bubble Studio.command`；Windows 双击 `Start Bubble Studio.cmd`。只需这样完成首次设置。
+1. macOS 下载最新版 [DMG](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest)，打开后把 `DIY Codex Bubble.app` 拖到“应用程序”。第一次打开若被 macOS 拦截，到“系统设置 → 隐私与安全性 → 仍要打开”放行一次。
+2. Windows 下载 ZIP，解压后双击 `Start Bubble Studio.cmd`。
 3. 首次运行会自动把内置 **外星小猫** 应用到 Codex，并开启「电脑开机后自动恢复」。如果 Codex 此前已普通启动，页面会提示先完全退出，再点「重新启动」；工坊不会强制关闭正在使用的应用。
 4. 之后可以直接用外星小猫，也可以在工坊里换图片、调拉伸线，或切换到豆包单独应用气泡。顶部「恢复默认」可随时撤销当前平台的换肤。
 
 `Open Bubble Apps.command` 是 macOS 上最直观的启动入口：双击后会打开终端、显示启动结果，并打开工坊网页。它只负责启动本机服务和已选的 Codex／豆包，图片与设置仍由工坊管理。`Open Bubble Apps.app` 是无终端的启动壳；如果 macOS 因未签名而拦截它，直接使用 `.command` 即可。Windows 对应文件为 `Open Bubble Apps.vbs`。
 
-**以后电脑开机并进入桌面：** 后台会启动工坊服务，并尝试恢复此前已应用过气泡的应用；无需打开终端或网页。**如果中途彻底退出应用：** macOS 优先双击 `Open Bubble Apps.command`，Windows 双击 `Open Bubble Apps.vbs`，即可重新启动已选应用；macOS 也可使用 `Open Bubble Apps.app`。不知道它在哪？在工坊右侧点「找到启动图标」，文件管理器会直接选中它；可以把 `.command` 拖到桌面。原版 Codex／豆包图标无法给已彻底退出的应用补上启动参数；如果直接用原图标重开，需先完全退出，再用气泡入口打开。开机自动恢复设置仅作用于当前电脑用户，工坊右侧可关闭。
+**以后电脑开机并进入桌面：** 后台会启动工坊服务，并尝试恢复此前已应用过气泡的应用；无需打开终端或网页。**如果中途彻底退出应用：** 打开“DIY Codex Bubble”应用，在工坊里点对应的“重新启动”按钮。原版 Codex／豆包图标无法给已彻底退出的应用补上启动参数；如果直接用原图标重开，需先完全退出，再从工坊重新启动。开机自动恢复设置仅作用于当前电脑用户，工坊右侧可关闭。
 
-**想再次换气泡：** 在浏览器打开 `http://127.0.0.1:19329`，或双击压缩包里的 `Open Bubble Studio.app`（Windows 为 `Open Bubble Studio.vbs`）。工坊右侧有「找到工坊图标」按钮，可在文件管理器里选中它；不必再找首次使用的 `.command` / `.cmd` 文件。
-
-首次打开工坊，页面上方会显示新手教程；收起后可随时点顶部「新手教程」重新查看。启动工坊不需要管理员权限，也不用手动敲终端命令。移动或删除工坊文件夹后，请在新位置重新开启电脑开机自动恢复。
+**想再次换气泡：** 打开“DIY Codex Bubble”应用即可重新进入工坊；也可以在浏览器打开 `http://127.0.0.1:19329`。
 
 **双击后只看到了代码？** 请从系统文件管理器打开对应的启动文件，Codex 的文件预览只是查看代码。如果提示缺少运行环境，或需要从源码启动，见 [运行与开发说明](DEVELOPMENT.md)。
 

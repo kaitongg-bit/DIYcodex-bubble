@@ -30,10 +30,6 @@ $('launch').onclick=async()=>{const button=$('launch');button.disabled=true;try{
 async function loadAutostart(){try{const value=await api('autostart');$('autostart').checked=value.enabled;}catch(e){$('autostart').disabled=true;toast(e.message);}}
 $('autostart').onchange=async event=>{const input=event.currentTarget;input.disabled=true;try{const value=await api('autostart',{enabled:input.checked});input.checked=value.enabled;toast(value.enabled?t('已开启：下次电脑开机进入桌面后恢复气泡'):t('已关闭电脑开机自动恢复'));}catch(e){input.checked=!input.checked;toast(e.message);}finally{input.disabled=false;}};
 loadAutostart();
-async function revealLauncher(kind){try{await api('reveal-launcher',{kind});toast(t(kind==='studio'?'已在文件管理器中标出工坊图标；双击它即可重新打开网页。':'已在文件管理器中标出气泡启动图标；双击它即可恢复气泡。'));}catch(e){toast(e.message);}}
-$('revealLauncher').onclick=()=>revealLauncher('apps');
-$('revealLauncherGuide').onclick=()=>revealLauncher('apps');
-$('revealStudio').onclick=()=>revealLauncher('studio');
 $('launchActive').onclick=async()=>{const button=$('launchActive');button.disabled=true;try{const r=await api('launch-active',{});for(const item of r.results||[])launchResults[item.platform]=item;updateStatus(lastStatus);toast((r.results||[]).map(launchDescription).join(' '));}catch(e){toast(e.message);}finally{button.disabled=false;}};
 $('theme').onclick=()=>{dark=!dark;$('chat').classList.toggle('dark',dark);$('theme').textContent=dark?t('浅色预览 ☼'):t('深色预览 ☾');};for(const button of document.querySelectorAll('[data-mode]'))button.onclick=()=>{mode=button.dataset.mode;document.querySelectorAll('[data-mode]').forEach(el=>el.classList.toggle('on',el===button));$('custom').hidden=mode!=='custom';update();};$('custom').oninput=update;$('previewWidth').oninput=update;
 $('import').onclick=$('emptyImport').onclick=()=>$('fileInput').click();$('fileInput').onchange=async e=>{try{let id;for(const f of e.target.files){if(f.size>2*1024*1024)throw Error(t('PNG 不得超过 2 MB'));const buffer=await f.arrayBuffer();let binary='';for(const b of new Uint8Array(buffer))binary+=String.fromCharCode(b);const r=await api('import',{name:f.name,data:btoa(binary)});id=r.id;}dirty=false;await load(id);toast(t('PNG 已导入素材库'));}catch(e){toast(e.message);}finally{$('fileInput').value='';}};
@@ -72,23 +68,6 @@ function refreshLanguage(){
 }
 $('language').onclick=()=>{setLanguage(language==='en'?'zh':'en');refreshLanguage();};
 refreshLanguage();
-
-$('studioLauncher').textContent=windowsHost?'Start Bubble Studio.cmd':'Start Bubble Studio.command';
-$('appsLauncher').textContent=windowsHost?'Open Bubble Apps.vbs':'Open Bubble Apps.app';
-$('studioAgainLauncher').textContent=windowsHost?'Open Bubble Studio.vbs':'Open Bubble Studio.app';
-function showOnboarding(scroll=false){
- $('onboarding').hidden=false;
- $('help').setAttribute('aria-expanded','true');
- if(scroll)$('onboarding').scrollIntoView({behavior:'smooth',block:'start'});
-}
-function hideOnboarding(){
- $('onboarding').hidden=true;
- $('help').setAttribute('aria-expanded','false');
- localStorage.setItem('bubble-onboarding-dismissed','1');
-}
-$('help').onclick=()=>showOnboarding(true);
-$('dismissOnboarding').onclick=$('finishOnboarding').onclick=hideOnboarding;
-if(localStorage.getItem('bubble-onboarding-dismissed')!=='1')showOnboarding();
 
 $('openCodexPreview').onclick=async()=>{if(!selected){toast('先导入一款气泡');return;}$('codexDialog').showModal();if(!codexPreview)codexPreview=new CodexPreview($('fullCodexPreview'),{dark});try{await codexPreview.setAsset(selected.url,config);}catch(e){toast(e.message);}};
 $('closeCodexPreview').onclick=()=>$('codexDialog').close();

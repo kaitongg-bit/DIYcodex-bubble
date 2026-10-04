@@ -1,6 +1,6 @@
 import unittest,tempfile,os,sys,json,struct,zlib,threading,urllib.request,urllib.error,base64,shutil,importlib.util
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch,call
 TASK_DATA=tempfile.TemporaryDirectory();os.environ['BUBBLE_STUDIO_DATA']=TASK_DATA.name
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'app'))
 import server
@@ -50,14 +50,11 @@ class StudioTests(unittest.TestCase):
   self.assertNotIn('href="/review"',page)
   self.assertIn('data-platform="codex"',page)
   self.assertIn('data-platform="doubao"',page)
-  self.assertIn('id="onboarding"',page)
-  self.assertIn('id="help"',page)
-  self.assertIn('id="appsLauncher"',page)
+  self.assertNotIn('id="onboarding"',page)
+  self.assertNotIn('id="help"',page)
+  self.assertNotIn('找到启动图标',page)
+  self.assertNotIn('找到工坊图标',page)
   self.assertIn('id="autostart"',page)
-  self.assertIn('id="revealLauncher"',page)
-  self.assertIn('id="revealLauncherGuide"',page)
-  self.assertIn('id="revealStudio"',page)
-  self.assertIn('id="studioAgainLauncher"',page)
  def test_reveal_launcher_opens_file_manager_without_launching_apps(self):
   with patch.object(server.sys,'platform','darwin'),patch.object(server.subprocess,'run') as run:
    self.assertTrue(self.request('/api/reveal-launcher',{})['ok'])
@@ -75,9 +72,9 @@ class StudioTests(unittest.TestCase):
   script=Path(__file__).resolve().parents[1]/'scripts/login-start.py'
   spec=importlib.util.spec_from_file_location('bubble_login_start',script)
   module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-  with patch.object(module,'request',return_value={}) as request,patch.object(module.subprocess,'run') as run,patch.object(module.webbrowser,'open') as browser:
+  with patch.object(module,'request',side_effect=[{}, {'firstRun':False}]) as request,patch.object(module.subprocess,'run') as run,patch.object(module.webbrowser,'open') as browser:
    module.main(open_studio=True)
-  request.assert_called_once_with('/api/status')
+  request.assert_has_calls([call('/api/status'),call('/api/first-run',{})])
   run.assert_called_once_with(['/usr/bin/open',module.URL],check=True)
   browser.assert_not_called()
   with patch.object(module.sys,'platform','win32'),patch.object(module,'request',return_value={}),patch.object(module.webbrowser,'open') as browser:

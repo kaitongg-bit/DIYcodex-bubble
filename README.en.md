@@ -61,20 +61,16 @@ Use **EN / 中文** in the top-right corner to switch languages. Bubble settings
 
 ## Quick start
 
-The macOS desktop integration has been tested on real apps. A Windows beta now includes the local studio, file operations, and app launch path; applying bubbles to Windows desktop apps still needs real-device testing. Python 3.9+ and Node.js 22+ must already be installed. This is not a standalone app with bundled runtimes.
+The macOS desktop integration has been tested on real apps. A Windows beta now includes the local studio, file operations, and app launch path; applying bubbles to Windows desktop apps still needs real-device testing.
 
-1. [Download the latest ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest) and extract it to a folder you will keep.
-2. If you are unsure where to start, macOS users double-click `START HERE.command` and Windows users double-click `START HERE.cmd` at the top of the extracted folder; the file manager selects the first launcher for you. Then macOS users double-click `Start Bubble Studio.command`; Windows users double-click `Start Bubble Studio.cmd`. This completes the one-time setup.
+1. On macOS, download the latest [DMG](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest), drag `DIY Codex Bubble.app` to Applications, and open it. If macOS blocks the first launch, use System Settings → Privacy & Security → Open Anyway once.
+2. On Windows, download the ZIP, extract it, and double-click `Start Bubble Studio.cmd`.
 3. On first run, the built-in **Alien cat** bubble is selected for Codex and **Restore after computer startup** is enabled. If Codex is already running normally, fully quit it and use the studio's Restart button. The studio never force-quits an app.
 4. Keep the preset or open the studio later to choose another PNG, adjust it, or apply a separate bubble to Doubao. **Restore default** reverses the current app's skin.
 
-`Open Bubble Apps.command` is the most visible macOS launcher: double-clicking it opens Terminal, prints the result, and opens the studio page. It starts the local service and selected Codex / Doubao apps; the studio still stores and manages bubbles. `Open Bubble Apps.app` is the silent launcher; if macOS blocks it because it is unsigned, use the `.command` file. On Windows, the launcher is `Open Bubble Apps.vbs`.
+**After your computer starts and reaches the desktop:** the local service starts in the background and tries to restore apps with applied bubbles. No terminal or web page is needed. **After fully quitting an app:** open `DIY Codex Bubble.app` on macOS and use the Restart button in the studio. The original Codex / Doubao icon cannot add startup flags after a full quit; if you reopen an app through its original icon, fully quit it and restart it from the studio. Computer startup is per-user and can be turned off in the studio.
 
-**After your computer starts and reaches the desktop:** the local service starts in the background and tries to restore apps with applied bubbles. No terminal or web page is needed. **After fully quitting an app:** double-click `Open Bubble Apps.command` on macOS or `Open Bubble Apps.vbs` on Windows to restart selected apps; macOS can also use `Open Bubble Apps.app`. Click **Find launcher** in the studio to select it in your file manager; you may drag the `.command` file to the desktop. The original Codex / Doubao icon cannot add startup flags after a full quit; if you reopen an app through its original icon, fully quit it and reopen with the bubble launcher. Computer startup is per-user and can be turned off in the studio.
-
-**To change bubbles later:** Open `http://127.0.0.1:19329` in your browser, or double-click `Open Bubble Studio.app` on macOS or `Open Bubble Studio.vbs` on Windows. The studio also has a **Find studio icon** button. The one-time `.command` / `.cmd` setup file is not needed again.
-
-The getting-started guide appears on first use and can be reopened from the header. Administrator access and manual terminal commands are unnecessary. If you move the studio folder, turn startup restore on again from the new location.
+**To change bubbles later:** open `DIY Codex Bubble.app` on macOS, or open `http://127.0.0.1:19329` in your browser. The one-time setup launcher is not needed again.
 
 **Seeing source code after double-clicking?** Open the launcher from your system file manager — Codex's file preview only displays its contents. For runtime requirements and running from source, see [Development notes](DEVELOPMENT.en.md).
 

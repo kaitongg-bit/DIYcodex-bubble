@@ -34,6 +34,10 @@ def main(open_studio=False):
    except Exception:pass
   else:raise RuntimeError('Bubble Studio local service did not start')
  if open_studio:
+  setup=request('/api/first-run',{})
+  if setup.get('firstRun'):
+   try:request('/api/launch-active',{})
+   except Exception:pass
   if sys.platform=='darwin':
    subprocess.run(['/usr/bin/open',URL],check=True)
   else:
