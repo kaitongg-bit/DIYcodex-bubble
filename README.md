@@ -66,15 +66,19 @@ macOS 桌面应用已经实机验证；Windows 版的本机工坊、文件操作
 1. [下载最新版 ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest)，解压到一个方便保留的位置。
 2. macOS 在 **Finder（访达）** 双击 `Start Bubble Studio.command`；Windows 在资源管理器双击 `Start Bubble Studio.cmd`。
 3. 打开 [气泡工坊](http://127.0.0.1:19329)，先试内置的三款预设；也可以点左上角 **＋** 导入图片，或点「连接素材文件夹」选择你的素材目录。
-4. 顶部选择 **Codex / 豆包**，选一款气泡调整、预览、保存，再点「应用到 Codex」或「应用到豆包」。
+4. 顶部「换肤应用」直接选 **Codex / 豆包**，调整并预览气泡，然后点「应用到 Codex」或「应用到豆包」。这一步会保存设置，并在需要时尝试启动目标应用。
 
-**完全退出应用后如何恢复？** 保存正在输入的内容，完全退出 Codex / ChatGPT 和豆包，再运行 `Start Bubble Apps.command`（macOS）或 `Start Bubble Apps.cmd`（Windows）。它会启动工坊，并一次启动所有已经选好气泡的应用；连接后气泡自动恢复。也可以在工坊点「同时恢复已选气泡」。直接点击应用原来的图标正常启动时，不会带上工坊需要的本机调试端口，因此气泡不会出现。工坊不会强制退出你已经打开的应用；若提示应用已普通启动，请在 macOS 用 `⌘Q`、Windows 从任务栏完全退出后再试。
+首次打开工坊，页面上方会显示新手教程；收起后可随时点顶部「新手教程」重新查看。启动工坊不需要管理员权限，也不用手动敲终端命令。
+
+**如果提示应用已普通启动：** 保存正在输入的内容，在 macOS 用 `⌘Q`、Windows 从任务栏完全退出目标应用，然后点击工坊里醒目的「我已完全退出，重新启动」按钮。工坊不会强制关闭应用。以后完全退出后，也可以运行 `Start Bubble Apps.command`（macOS）或 `Start Bubble Apps.cmd`（Windows），一次恢复所有已经选好气泡的应用。直接点击应用原来的图标启动不会带上所需的本机调试端口。
+
+**电脑关机再开，气泡还在吗？** PNG 和设置保存在本机；应用里的气泡样式属于运行时效果，关机后不会自动出现。重新双击对应系统的 `Start Bubble Apps` 启动文件即可恢复已选气泡。
 
 **双击后只看到了代码？** 请从系统文件管理器打开对应的启动文件，Codex 的文件预览只是查看代码。如果提示缺少运行环境，或需要从源码启动，见 [运行与开发说明](DEVELOPMENT.md)。
 
 Windows 测试版会查找常见的应用安装位置和可信发布者的 Microsoft Store 包。若找不到应用，可在启动工坊前设置 `BUBBLE_STUDIO_CODEX_EXE` 或 `BUBBLE_STUDIO_DOUBAO_EXE` 为实际 `.exe` 路径。部分 Windows 商店应用可能不接受调试端口参数；若一直显示“未连接”，请在 [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues) 附上 Windows 版本、应用版本与 `.local/app-start.log` 中去除私人路径后的报错，勿上传聊天内容。
 
-Windows 用户请从 [Releases](https://github.com/kaitongg-bit/DIYcodex-bubble/releases) 选择标有 **Windows beta** 的版本；页面顶部的“下载最新版”仍指向 macOS 已验证的稳定版。
+页面顶部的「下载最新版」ZIP 已包含 Windows 的 `.cmd` 入口；Windows 桌面注入仍标为测试版，遇到连接问题请按上面的方式反馈。
 
 ## 使用说明
 
@@ -103,6 +107,8 @@ Windows 用户请从 [Releases](https://github.com/kaitongg-bit/DIYcodex-bubble/
 ## 社区与作品库
 
 [打开在线作品库](https://kaitongg-bit.github.io/DIYcodex-bubble/)：选一款气泡，就能在接近 Codex 桌面布局的聊天模拟器里试效果，支持浅色、深色和输入自己的消息；不连接你的账号，也不读取真实聊天。
+
+工坊顶部的「在线气泡库」直接打开这个公开网站。「审核台」只供项目维护者在有私有待审库权限的本机使用，因此不放在普通用户导航里。
 
 <p align="center">
   <img src="docs/images/chat-simulation.png" alt="在线作品库的聊天模拟器预览" width="420"><br>

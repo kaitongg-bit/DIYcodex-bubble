@@ -314,8 +314,13 @@ class Handler(BaseHTTPRequestHandler):
      result=launch_platform(s['platform'],s)
      return self.send({'ok':True,**result})
     else:raise ValueError('未知操作')
-   if self.path in ('/api/apply','/api/restore'):STATUSES[s['platform']]=bridge('restore' if self.path=='/api/restore' else 'apply',s['platform'])
-   return self.send({'ok':True,'status':status_for(s),'platform':s['platform']})
+   launch=None
+   if self.path in ('/api/apply','/api/restore'):
+    STATUSES[s['platform']]=bridge('restore' if self.path=='/api/restore' else 'apply',s['platform'])
+    if self.path=='/api/apply' and not STATUSES[s['platform']].get('connected'):
+     try:launch=launch_platform(s['platform'],s)
+     except (ValueError,OSError,subprocess.SubprocessError) as error:launch={'platform':s['platform'],'state':'unavailable','message':str(error)}
+   return self.send({'ok':True,'status':status_for(s),'platform':s['platform'],'launch':launch})
   except (ValueError,KeyError,TypeError,OSError,subprocess.SubprocessError) as e:self.send({'error':str(e)},400)
 def main():
  global PORT

@@ -31,6 +31,27 @@ class StudioTests(unittest.TestCase):
    self.assertEqual(self.request('/api/apply',{'id':a['id'],'config':a['config']})['status']['matched'],6)
    exported=self.request('/api/export');self.assertNotIn(TASK_DATA.name,json.dumps(exported));self.assertEqual(exported['active']['filename'],'one.png')
    self.request('/api/restore',{});self.assertIsNone(server.state()['active'])
+ def test_apply_attempts_launch_when_app_is_disconnected(self):
+  a=self.connect()[0]
+  launch_result={'platform':'codex','state':'quit-required','message':'请先完全退出'}
+  with patch.object(server,'bridge',return_value={'connected':False,'matched':0}),patch.object(server,'launch_platform',return_value=launch_result) as launch:
+   result=self.request('/api/apply',{'id':a['id'],'config':a['config']})
+   self.assertEqual(result['launch'],launch_result)
+   self.assertEqual(server.state()['active']['id'],a['id'])
+   launch.assert_called_once()
+  with patch.object(server,'bridge',return_value={'connected':True,'matched':1}),patch.object(server,'launch_platform') as launch:
+   result=self.request('/api/apply',{'id':a['id'],'config':a['config']})
+   self.assertIsNone(result['launch'])
+   launch.assert_not_called()
+ def test_main_navigation_uses_public_gallery_without_owner_review_link(self):
+  with urllib.request.urlopen(self.base) as response:page=response.read().decode()
+  self.assertIn('https://kaitongg-bit.github.io/DIYcodex-bubble/',page)
+  self.assertNotIn('href="/review"',page)
+  self.assertIn('data-platform="codex"',page)
+  self.assertIn('data-platform="doubao"',page)
+  self.assertIn('id="onboarding"',page)
+  self.assertIn('id="help"',page)
+  self.assertIn('id="appsLauncher"',page)
  def test_import_and_bad_png_rollback(self):
   result=self.request('/api/import',{'name':'import.png','data':base64.b64encode(png()).decode()});self.assertTrue(result['id']);before=len(server.library())
   with self.assertRaises(urllib.error.HTTPError):self.request('/api/import',{'name':'bad.png','data':base64.b64encode(b'bad').decode()})

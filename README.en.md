@@ -66,15 +66,19 @@ The macOS desktop integration has been tested on real apps. A Windows beta now i
 1. [Download the latest ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest) and extract it somewhere you can keep.
 2. On macOS, double-click `Start Bubble Studio.command` in Finder. On Windows, double-click `Start Bubble Studio.cmd` in File Explorer.
 3. Open [Bubble Studio](http://127.0.0.1:19329). Try the three built-in presets, click **＋** to import a PNG, or **Connect a folder** to select your asset folder.
-4. Select **Codex / Doubao** in the header, tune and preview a bubble, save it, then click **Apply to Codex** or **Apply to Doubao**.
+4. Choose **Codex / Doubao** under **Target app**, tune and preview a bubble, then click **Apply to Codex** or **Apply to Doubao**. This saves the settings and tries to launch the app if needed.
 
-**After fully quitting the apps:** Save your input and quit Codex / ChatGPT and Doubao completely. Run `Start Bubble Apps.command` on macOS or `Start Bubble Apps.cmd` on Windows. It starts the studio and launches every app with a selected bubble; saved bubbles return when connected. You can also click **Launch all selected bubbles** in the studio. Launching the original app icons does not enable the local debugging ports required by the studio. The studio never force-quits an already running app; on macOS quit it with `⌘Q`, or on Windows fully exit it from the taskbar, before trying again.
+A getting-started guide appears above the studio on first use. Reopen it later from **Getting started** in the header. Starting the studio needs no administrator access or manual terminal commands.
+
+**If the app was already started normally:** Save your input and fully quit the target app with `⌘Q` on macOS or from the taskbar on Windows, then click the prominent **I fully quit it — restart** button in the studio. The studio never force-quits your app. After a later full quit, you can run `Start Bubble Apps.command` on macOS or `Start Bubble Apps.cmd` on Windows to restore all selected bubbles. Launching the original app icon does not enable the required local debugging port.
+
+**After a computer restart:** Your PNGs and settings remain on this computer, but the runtime bubble style does not reappear automatically. Double-click the appropriate `Start Bubble Apps` launcher to restore your selected bubbles.
 
 **Seeing source code after double-clicking?** Open the launcher from your system file manager — Codex's file preview only displays its contents. For runtime requirements and running from source, see [Development notes](DEVELOPMENT.en.md).
 
 The Windows beta searches common installation paths and Microsoft Store packages from expected publishers. If an app is not found, set `BUBBLE_STUDIO_CODEX_EXE` or `BUBBLE_STUDIO_DOUBAO_EXE` to its real `.exe` path before launching the studio. Some Store app builds may ignore the debugging flags. If the studio remains disconnected, report the Windows and app versions in [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues), along with relevant errors from `.local/app-start.log` after removing private paths. Do not upload chat content.
 
-Windows users should choose a **Windows beta** package from [Releases](https://github.com/kaitongg-bit/DIYcodex-bubble/releases). The main **Download** link still points to the stable macOS-verified package.
+The main **Download** ZIP now includes the Windows `.cmd` launchers. Windows desktop injection remains beta; please report connection issues as described above.
 
 ## Usage
 
@@ -103,6 +107,8 @@ To delete permanently, click **Open recovery folder** and delete unwanted files 
 ## Gallery and community
 
 [Open the online gallery](https://kaitongg-bit.github.io/DIYcodex-bubble/). Pick a design and try it in a Codex-inspired desktop chat simulator, with light/dark themes and your own sample messages. It never connects to your account or reads real conversations.
+
+The studio's **Online bubble gallery** link opens this public site directly. The review console is for the maintainer's local machine with access to the private submission queue, so it is not shown in the public navigation.
 
 <p align="center">
   <img src="docs/images/chat-simulation.png" alt="Chat simulator in the online gallery" width="420"><br>

@@ -3,7 +3,8 @@ import {CodexPreview} from './codex-preview.mjs';
 import {t,language,setLanguage,translatePage} from './i18n.mjs';
 let platform='codex';
 const platformName=()=>platform==='doubao'?t('豆包'):'Codex';
-const $=id=>document.getElementById(id);let items=[],selected=null,config=null,activeId=null,favOnly=false,mode='short',dark=false,dragKey=null,toastTimer,dirty=false,textDrag=null,latestTrashId=null,lastStatus={connected:false,matched:0},folderCount=0,codexPreview=null;
+const $=id=>document.getElementById(id);let items=[],selected=null,config=null,activeId=null,favOnly=false,mode='short',dark=false,dragKey=null,toastTimer,dirty=false,textDrag=null,latestTrashId=null,lastStatus={connected:false,matched:0},folderCount=0,codexPreview=null;const launchResults={};
+function launchDescription(result){const name=result.platform==='doubao'?t('豆包'):'Codex';if(result.state==='quit-required')return t('{platform} 已普通启动。请完全退出后点“重新启动”。',{platform:name});if(result.state==='starting')return t('正在启动 {platform}；连接后气泡会自动出现。',{platform:name});if(result.state==='connected')return t('{platform} 已连接，气泡会自动恢复。',{platform:name});return result.message;}
 async function api(path,body){const response=await fetch('/api/'+path,body?{method:'POST',headers:{'Content-Type':'application/json','X-Bubble-Studio':'1','Accept-Language':language},body:JSON.stringify({platform,...body})}:{headers:{'Accept-Language':language}});const data=await response.json();if(!response.ok)throw Error(data.error||t('操作失败'));if(['apply','restore','launch'].includes(path)&&data.platform&&data.platform!==platform)throw Error(t('平台已切换，请刷新后重试'));return data;}
 function toast(text){$('toast').textContent=t(text);$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',4200);}
 const defaults=bubbleDefaults;
@@ -14,18 +15,18 @@ function fillInputs(){for(const k of ['radius','borderWidth','borderColor','colo
 function readInputs(){if(!selected)return;for(const k of ['radius','borderWidth'])config[k]=Number($(k).value);config.scale=Number($('scale').value)/100;config.color=$('color').value;config.borderColor=$('borderColor').value;}
 function valid(){return bubbleValid(selected,config);}
 function update(){if(!selected)return;drawCanvas($('art'),$('textBox'),$('stretchBand'),selected,config);for(const line of document.querySelectorAll('.guide b')){line.textContent='';line.title=t('拖动拉伸线：选择平直、连续的边，避开弧线与装饰');}const p=$('previewBubble');styleBubble(p,selected,config,$('previewWidth').value);p.textContent=mode==='short'?t('你好，今天也要开心。'):mode==='long'?Array.from({length:14},(_,i)=>`${i+1}. ${t('这是一条长消息，检查猫咪、尾巴、爪子与边角，是否在拉伸时保持原样。')}`).join('\n'):$('custom').value||t('输入你想预览的文字…');$('widthValue').textContent=$('previewWidth').value+' px';$('apply').disabled=!valid();paintPreview();if($('codexDialog').open)codexPreview?.setAsset(selected.url,config).catch(e=>toast(e.message));}
-async function load(pickId,keepDraft=false){const draft=keepDraft&&dirty&&selected?{id:selected.id,config:structuredClone(config)}:null;const data=await api('library');platform=data.platform||'codex';$('platform').value=platform;items=data.items;activeId=data.activeId;latestTrashId=data.latestTrashId;$('undoDelete').hidden=!latestTrashId;$('folderHint').textContent=(folderCount=data.folders.length)?t('{count} 个素材文件夹',{count:folderCount}):t('支持 PNG 导入与本机文件夹');renderGallery();if(items.length){const item=items.find(i=>i.id===(pickId||selected?.id||activeId||data.preferredId))||items[0];choose(item);if(draft&&draft.id===item.id){config=draft.config;fillInputs();setDirty();update();}}else{selected=null;config=null;dirty=false;$('empty').hidden=false;$('editor').hidden=true;$('apply').disabled=true;$('assetName').textContent=t('选择一款气泡');$('assetMeta').textContent=t('从左侧素材库开始');$('previewBubble').textContent=t('先导入一款气泡');$('previewBubble').style.cssText='';}updateStatus(data.status);}
-function updateStatus(s){lastStatus=s;platformLabels();$('connDot').classList.toggle('connected',s.connected);$('connection').textContent=s.connected?t('{platform} 已连接',{platform:platformName()}):t('{platform} 未连接',{platform:platformName()});$('liveState').textContent=!activeId?t('还没有应用气泡；调整满意后再应用。'):!s.connected?t('气泡已保存，等待连接 {platform}。',{platform:platformName()}):s.matched>0?t('已应用 · {count} 条用户消息正在使用',{count:s.matched}):t('已应用，当前窗口没有用户消息；回到聊天后自动显示。');}
-async function status(){try{const s=await api('status');platform=s.platform||platform;$('platform').value=platform;activeId=s.activeId;updateStatus(s);}catch{$('connection').textContent=t('本机服务未连接');}}
+async function load(pickId,keepDraft=false){const draft=keepDraft&&dirty&&selected?{id:selected.id,config:structuredClone(config)}:null;const data=await api('library');platform=data.platform||'codex';items=data.items;activeId=data.activeId;latestTrashId=data.latestTrashId;$('undoDelete').hidden=!latestTrashId;$('folderHint').textContent=(folderCount=data.folders.length)?t('{count} 个素材文件夹',{count:folderCount}):t('支持 PNG 导入与本机文件夹');renderGallery();if(items.length){const item=items.find(i=>i.id===(pickId||selected?.id||activeId||data.preferredId))||items[0];choose(item);if(draft&&draft.id===item.id){config=draft.config;fillInputs();setDirty();update();}}else{selected=null;config=null;dirty=false;$('empty').hidden=false;$('editor').hidden=true;$('apply').disabled=true;$('assetName').textContent=t('选择一款气泡');$('assetMeta').textContent=t('从左侧素材库开始');$('previewBubble').textContent=t('先导入一款气泡');$('previewBubble').style.cssText='';}updateStatus(data.status);}
+function updateStatus(s){lastStatus=s;if(s.connected)delete launchResults[platform];platformLabels();$('connDot').classList.toggle('connected',s.connected);$('connection').textContent=s.connected?t('{platform} 已连接',{platform:platformName()}):t('{platform} 未连接',{platform:platformName()});$('launch').hidden=!activeId||s.connected;$('liveState').textContent=!activeId?t('还没有应用气泡；调整满意后再应用。'):!s.connected?(launchResults[platform]?launchDescription(launchResults[platform]):t('气泡已保存。请完全退出 {platform}，再点下方按钮启动。',{platform:platformName()})):s.matched>0?t('已应用 · {count} 条用户消息正在使用',{count:s.matched}):t('已应用，当前窗口没有用户消息；回到聊天后自动显示。');}
+async function status(){try{const s=await api('status');platform=s.platform||platform;activeId=s.activeId;updateStatus(s);}catch{$('connection').textContent=t('本机服务未连接');}}
 for(const k of ['scale','radius','borderWidth','borderColor','color'])$(k).oninput=()=>{readInputs();setDirty();update();};window.addEventListener('resize',update);
 bindCanvas($('art'),$('textBox'),{getItem:()=>selected,getConfig:()=>config,onChange:()=>{fillInputs();setDirty();update();}});
 $('search').oninput=renderGallery;$('all').onclick=()=>{favOnly=false;renderGallery();};$('favorites').onclick=()=>{favOnly=true;renderGallery();};$('refresh').onclick=()=>load().then(()=>toast(t('素材库已刷新'))).catch(e=>toast(e.message));
 $('star').onclick=async()=>{if(!selected)return;await api('favorite',{id:selected.id});selected.favorite=!selected.favorite;$('star').textContent=selected.favorite?'★':'☆';renderGallery();};
 $('reset').onclick=()=>{if(!selected)return;config=defaults(selected);fillInputs();setDirty();update();};$('save').onclick=async()=>{try{if(!valid())throw Error(t('拉伸线不能交叉或超出图片'));await api('save',{id:selected.id,config});selected.config=structuredClone(config);setDirty(false);toast(t('已保存这款气泡的设置'));}catch(e){toast(e.message);}};
-$('apply').onclick=async()=>{try{$('apply').disabled=true;$('apply').textContent=t('正在应用…');const result=await api('apply',{id:selected.id,config});activeId=selected.id;selected.config=structuredClone(config);setDirty(false);updateStatus(result.status);toast(result.status.connected?t('气泡已应用，回到聊天查看'):t('设置已保存，请启动 {platform} 连接',{platform:platformName()}));}catch(e){toast(e.message);}finally{$('apply').replaceChildren(document.createTextNode(t('应用到 {platform}',{platform:platformName()})+' '),Object.assign(document.createElement('span'),{textContent:'↗'}));$('apply').disabled=!valid();}};
+$('apply').onclick=async()=>{try{$('apply').disabled=true;$('apply').textContent=t('正在应用…');const result=await api('apply',{id:selected.id,config});activeId=selected.id;selected.config=structuredClone(config);setDirty(false);if(result.launch)launchResults[platform]=result.launch;updateStatus(result.status);toast(result.status.connected?t('气泡已应用，回到聊天查看'):result.launch?launchDescription(result.launch):t('气泡已保存。请完全退出 {platform}，再点下方按钮启动。',{platform:platformName()}));}catch(e){toast(e.message);}finally{$('apply').textContent='';platformLabels();$('apply').disabled=!valid();}};
 $('restore').onclick=async()=>{try{const r=await api('restore',{});activeId=null;updateStatus(r.status);toast(t('已恢复默认气泡'));}catch(e){toast(e.message);}};
-$('launch').onclick=async()=>{try{const r=await api('launch',{});toast(r.message);}catch(e){toast(e.message);}};
-$('launchActive').onclick=async()=>{const button=$('launchActive');button.disabled=true;try{const r=await api('launch-active',{});toast(r.message);}catch(e){toast(e.message);}finally{button.disabled=false;}};
+$('launch').onclick=async()=>{const button=$('launch');button.disabled=true;try{const r=await api('launch',{});launchResults[platform]=r;updateStatus(lastStatus);toast(launchDescription(r));}catch(e){toast(e.message);}finally{button.disabled=false;}};
+$('launchActive').onclick=async()=>{const button=$('launchActive');button.disabled=true;try{const r=await api('launch-active',{});for(const item of r.results||[])launchResults[item.platform]=item;updateStatus(lastStatus);toast((r.results||[]).map(launchDescription).join(' '));}catch(e){toast(e.message);}finally{button.disabled=false;}};
 $('theme').onclick=()=>{dark=!dark;$('chat').classList.toggle('dark',dark);$('theme').textContent=dark?t('浅色预览 ☼'):t('深色预览 ☾');};for(const button of document.querySelectorAll('[data-mode]'))button.onclick=()=>{mode=button.dataset.mode;document.querySelectorAll('[data-mode]').forEach(el=>el.classList.toggle('on',el===button));$('custom').hidden=mode!=='custom';update();};$('custom').oninput=update;$('previewWidth').oninput=update;
 $('import').onclick=$('emptyImport').onclick=()=>$('fileInput').click();$('fileInput').onchange=async e=>{try{let id;for(const f of e.target.files){if(f.size>2*1024*1024)throw Error(t('PNG 不得超过 2 MB'));const buffer=await f.arrayBuffer();let binary='';for(const b of new Uint8Array(buffer))binary+=String.fromCharCode(b);const r=await api('import',{name:f.name,data:btoa(binary)});id=r.id;}dirty=false;await load(id);toast(t('PNG 已导入素材库'));}catch(e){toast(e.message);}finally{$('fileInput').value='';}};
 $('folder').onclick=async()=>{const button=$('folder');button.disabled=true;button.textContent=t('请在选择窗口中选取…');try{const result=await api('choose-folder',{});if(!result.cancelled){await load(undefined,true);toast(t('素材文件夹已连接'));}}catch(e){toast(e.message);}finally{button.disabled=false;button.textContent=t('＋ 连接素材文件夹');}};
@@ -55,13 +56,30 @@ function refreshLanguage(){
  $('folderHint').textContent=folderCount?t('{count} 个素材文件夹',{count:folderCount}):t('支持 PNG 导入与本机文件夹');
  if(!$('folder').disabled)$('folder').textContent=t('＋ 连接素材文件夹');
  $('theme').textContent=t(dark?'浅色预览 ☼':'深色预览 ☾');
- if(!$('apply').disabled||!selected)$('apply').replaceChildren(document.createTextNode(t('应用到 {platform}',{platform:platformName()})+' '),Object.assign(document.createElement('span'),{textContent:'↗'}));
+ platformLabels();
  if(selected){$('assetMeta').textContent=`${selected.width} × ${selected.height} px · ${(selected.bytes/1024).toFixed(1)} KB · ${t(selected.douyinSize?'符合抖音尺寸上限':'用于聊天；抖音上传需调整尺寸')}`;update();}
  else{$('assetName').textContent=t('选择一款气泡');$('assetMeta').textContent=t('从左侧素材库开始');$('previewBubble').textContent=t('先导入一款气泡');}
  collapseLibrary($('workspace').classList.contains('library-collapsed'));
 }
 $('language').onclick=()=>{setLanguage(language==='en'?'zh':'en');refreshLanguage();};
 refreshLanguage();
+
+const windowsHost=/Win/i.test(navigator.userAgentData?.platform||navigator.platform||'');
+$('studioLauncher').textContent=windowsHost?'Start Bubble Studio.cmd':'Start Bubble Studio.command';
+$('appsLauncher').textContent=windowsHost?'Start Bubble Apps.cmd':'Start Bubble Apps.command';
+function showOnboarding(scroll=false){
+ $('onboarding').hidden=false;
+ $('help').setAttribute('aria-expanded','true');
+ if(scroll)$('onboarding').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function hideOnboarding(){
+ $('onboarding').hidden=true;
+ $('help').setAttribute('aria-expanded','false');
+ localStorage.setItem('bubble-onboarding-dismissed','1');
+}
+$('help').onclick=()=>showOnboarding(true);
+$('dismissOnboarding').onclick=$('finishOnboarding').onclick=hideOnboarding;
+if(localStorage.getItem('bubble-onboarding-dismissed')!=='1')showOnboarding();
 
 $('openCodexPreview').onclick=async()=>{if(!selected){toast('先导入一款气泡');return;}$('codexDialog').showModal();if(!codexPreview)codexPreview=new CodexPreview($('fullCodexPreview'),{dark});try{await codexPreview.setAsset(selected.url,config);}catch(e){toast(e.message);}};
 $('closeCodexPreview').onclick=()=>$('codexDialog').close();
@@ -70,10 +88,10 @@ $('importSettings').onclick=()=>{if(selected)$('settingsInput').click();};
 $('settingsInput').onchange=async e=>{try{const file=e.target.files[0];if(!file||!selected)return;if(file.size>32768)throw Error('设置文件过大');const settings=JSON.parse(await file.text());if(settings.version!==1||!settings.config)throw Error('不是有效的气泡设置文件');if(settings.filename!==selected.filename&&!selected.filename.endsWith('-'+settings.filename))throw Error('请先选择与设置文件对应的 PNG');await api('save',{id:selected.id,config:settings.config});dirty=false;await load(selected.id);toast('已导入设置，尚未应用到聊天');}catch(e){toast(e.message);}finally{e.target.value='';}};
 
 function platformLabels(){
- $('platform').value=platform;
+ for(const button of document.querySelectorAll('[data-platform]'))button.setAttribute('aria-pressed',String(button.dataset.platform===platform));
  $('previewPlatformName').textContent=platformName();
  $('previewComposer').textContent=t('发送消息给 {platform}',{platform:platformName()})+' ↑';
- $('launch').textContent=t('启动 {platform} 并换肤',{platform:platformName()});
+ $('launch').textContent=t('我已完全退出，重新启动 {platform} ↗',{platform:platformName()});
  if($('apply').textContent!==t('正在应用…'))$('apply').replaceChildren(document.createTextNode(t('应用到 {platform}',{platform:platformName()})+' '),Object.assign(document.createElement('span'),{textContent:'↗'}));
 }
-$('platform').onchange=async()=>{const key=$('platform').value;$('platform').disabled=true;try{await api('platform',{platform:key});await load(selected?.id,true);}catch(e){toast(e.message);$('platform').value=platform;}finally{$('platform').disabled=false;}};
+for(const button of document.querySelectorAll('[data-platform]'))button.onclick=async()=>{const key=button.dataset.platform;if(key===platform)return;const buttons=[...document.querySelectorAll('[data-platform]')];buttons.forEach(item=>item.disabled=true);try{await api('platform',{platform:key});await load(selected?.id,true);}catch(e){toast(e.message);platformLabels();}finally{buttons.forEach(item=>item.disabled=false);}};
