@@ -97,6 +97,6 @@ jobs:
         with:
           name: windows-application
           path: |
-            dist/*-windows-x64-setup.exe
-            dist/*-windows-x64-portable.zip
+            dist/*-windows-x64-*-setup.exe
+            dist/*-windows-x64-*-portable.zip
           if-no-files-found: error
