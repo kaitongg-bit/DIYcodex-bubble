@@ -64,6 +64,16 @@ jobs:
           $status = Invoke-RestMethod http://127.0.0.1:19329/api/library
           if ($status.items.Count -lt 3) { throw 'Built-in presets missing' }
           Write-Output "Installed EXE opened the workshop; $($status.items.Count) presets loaded"
+          $state = Join-Path $env:LOCALAPPDATA 'DIY Codex Bubble\Data\state.json'
+          if (!(Test-Path $state)) { throw 'State was not saved outside the install directory' }
+          $startup = Join-Path ([Environment]::GetFolderPath('Startup')) 'DIY Codex Bubble Restore.vbs'
+          if (!(Test-Path $startup)) { throw 'Automatic restore entry missing' }
+          Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -like "$install\runtime\python\*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+          $process = Start-Process (Join-Path $install 'unins000.exe') -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw 'Uninstall failed' }
+          if (Test-Path $startup) { throw 'Owned startup entry was not removed' }
+          if (!(Test-Path $state)) { throw 'Uninstall removed user settings' }
+          Write-Output 'Uninstall removed startup entry and preserved settings'
       - uses: actions/upload-artifact@v4
         with:
           name: windows-application

@@ -36,19 +36,5 @@ Name: "{autodesktop}\DIY Codex Bubble"; Filename: "{app}\DIY Codex Bubble.exe"; 
 [Run]
 Filename: "{app}\DIY Codex Bubble.exe"; Description: "Open DIY Codex Bubble / 打开气泡工坊"; Flags: nowait postinstall skipifsilent
 
-[Code]
-procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-var FileName: String;
-    Lines: TArrayOfString;
-    Index: Integer;
-begin
-  if CurUninstallStep = usUninstall then begin
-    FileName := ExpandConstant('{userstartup}\DIY Codex Bubble Restore.vbs');
-    if LoadStringsFromFile(FileName, Lines) then
-      for Index := 0 to GetArrayLength(Lines) - 1 do
-        if Pos(ExpandConstant('{app}'), Lines[Index]) > 0 then begin
-          DeleteFile(FileName);
-          Break;
-        end;
-  end;
-end;
+[UninstallRun]
+Filename: "{app}\runtime\python\python.exe"; Parameters: "-X utf8 -c ""import autostart; p=autostart.item_path(); p.unlink() if p.is_file() and str(autostart.ROOT) in p.read_bytes().decode('utf-16') else None"""; Flags: runhidden; RunOnceId: "RemoveOwnedStartup"
