@@ -38,11 +38,17 @@ Filename: "{app}\DIY Codex Bubble.exe"; Description: "Open DIY Codex Bubble / æ‰
 
 [Code]
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-var FileName, Content: String;
+var FileName: String;
+    Lines: TArrayOfString;
+    Index: Integer;
 begin
   if CurUninstallStep = usUninstall then begin
     FileName := ExpandConstant('{userstartup}\DIY Codex Bubble Restore.vbs');
-    if LoadStringFromFile(FileName, Content) and (Pos(ExpandConstant('{app}'), Content) > 0) then
-      DeleteFile(FileName);
+    if LoadStringsFromFile(FileName, Lines) then
+      for Index := 0 to GetArrayLength(Lines) - 1 do
+        if Pos(ExpandConstant('{app}'), Lines[Index]) > 0 then begin
+          DeleteFile(FileName);
+          Break;
+        end;
   end;
 end;

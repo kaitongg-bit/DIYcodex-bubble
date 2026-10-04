@@ -64,7 +64,7 @@ Use **EN / 中文** in the top-right corner to switch languages. Bubble settings
 The macOS desktop integration has been tested on real apps. A Windows beta now includes the local studio, file operations, and app launch path; applying bubbles to Windows desktop apps still needs real-device testing.
 
 1. On macOS, download the latest [DMG](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest), drag `DIY Codex Bubble.app` to Applications, and open it. If macOS blocks the first launch, use System Settings → Privacy & Security → Open Anyway once.
-2. On Windows, download `DIYcodex-bubble-vVERSION-windows.zip` from the release and extract the entire archive. Install Python 3.9+ (select Add Python to PATH) and Node.js LTS, then double-click `Start Bubble Studio.cmd`. Administrator rights are not required.
+2. On Windows 10/11 (x64), download `windows-x64-setup.exe` and install it, then open **DIY Codex Bubble** from the desktop or Start menu. Python and Node.js are bundled; administrator rights are not required. Alternatively, extract `windows-x64-portable.zip` and double-click `DIY Codex Bubble.exe`.
 3. On first run, the built-in **Alien cat** bubble is selected for Codex and **Restore after computer startup** is enabled. If Codex is already running normally, fully quit it and use the studio's Restart button. The studio never force-quits an app.
 4. Keep the preset or open the studio later to choose another PNG, adjust it, or apply a separate bubble to Doubao. **Restore default** reverses the current app's skin.
 
@@ -76,7 +76,7 @@ The macOS desktop integration has been tested on real apps. A Windows beta now i
 
 The Windows beta searches common installation paths and Microsoft Store packages from expected publishers. If an app is not found, set `BUBBLE_STUDIO_CODEX_EXE` or `BUBBLE_STUDIO_DOUBAO_EXE` to its real `.exe` path before launching the studio. Some Store app builds may ignore the debugging flags. If the studio remains disconnected, report the Windows and app versions in [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues), along with relevant errors from `.local/app-start.log` after removing private paths. Do not upload chat content.
 
-The main **Download** ZIP now includes the Windows `.cmd` launchers. Windows desktop injection remains beta; please report connection issues as described above.
+The installed Windows app stores settings and logs in `%LOCALAPPDATA%\DIY Codex Bubble\Data`; upgrades preserve them. The unsigned installer may trigger SmartScreen. Legacy source ZIP / `.cmd` launchers remain available for development and require separately installed Python and Node.js. Windows desktop injection remains beta; please report connection issues as described above.
 
 ## Usage
 

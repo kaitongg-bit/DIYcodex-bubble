@@ -71,6 +71,8 @@ node --check app/static/app.js
 
 ## Anonymous submission intake
 
+Windows 应用包由 `.github/workflows/windows-app.yml` 在 Windows runner 构建：`scripts/build-windows-app.py` 下载固定版本的官方 Python embeddable 和 Node.js（验证 SHA-256），编译带图标的 C# 启动器，并生成便携 ZIP；Inno Setup 生成当前用户安装包与桌面/开始菜单快捷方式。构建包含 Windows 服务测试、内置运行时检查与静默安装后启动 EXE 的验收。安装版数据位于 `%LOCALAPPDATA%\DIY Codex Bubble\Data`，自动恢复入口使用同一目录与内置 Node；不改系统 PATH、不要求管理员权限。ARM64 尚未单独提供原生包。
+
 Windows 发布包用 `python3 scripts/build-windows-zip.py --version 版本号` 构建，并与 macOS DMG 一起上传同一 Release。构建只取已跟踪的工坊代码、预设、Windows 启动器和用户文档，排除私有状态、macOS 启动器和审核工作树；包内附 `WINDOWS-START.txt`。Python 和 Node.js 尚未内置。
 
 See [community/DEPLOYMENT.md](community/DEPLOYMENT.md) for Worker secrets, Turnstile, private queue, owner-only moderation and the verified local acceptance boundary. Regression tests: `node --test tests/submissions.test.mjs`.

@@ -64,11 +64,11 @@
 macOS 桌面应用已经实机验证；Windows 版的本机工坊、文件操作和启动流程已适配，但桌面气泡注入还需要 Windows 用户实机验收。
 
 1. macOS 下载最新版 [DMG](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest)，打开后把 `DIY Codex Bubble.app` 拖到“应用程序”。第一次打开若被 macOS 拦截，到“系统设置 → 隐私与安全性 → 仍要打开”放行一次。
-2. Windows 下载发布页中的 `DIYcodex-bubble-v版本号-windows.zip`，完整解压。先安装 Python 3.9+（勾选 Add Python to PATH）和 Node.js LTS，再双击 `Start Bubble Studio.cmd`；不需要管理员权限。
+2. Windows 10/11（x64）下载发布页中的 `windows-x64-setup.exe`，双击安装。安装后从桌面或开始菜单打开 **DIY Codex Bubble**；已内置 Python 和 Node.js，不需要管理员权限。也可下载 `windows-x64-portable.zip`，完整解压后双击其中的 `DIY Codex Bubble.exe`。
 3. 首次运行会自动把内置 **外星小猫** 应用到 Codex，并开启「电脑开机后自动恢复」。如果 Codex 此前已普通启动，页面会提示先完全退出，再点「重新启动」；工坊不会强制关闭正在使用的应用。
 4. 之后可以直接用外星小猫，也可以在工坊里换图片、调拉伸线，或切换到豆包单独应用气泡。顶部「恢复默认」可随时撤销当前平台的换肤。
 
-macOS 现在推荐使用发布页里的 DMG：把 `DIY Codex Bubble.app` 拖到“应用程序”后，从应用程序启动即可。首次打开未签名应用时，按 macOS 提示到“系统设置 → 隐私与安全性”选择“仍要打开”；之后不需要再找 command 文件。Windows 仍使用 ZIP 里的 `Start Bubble Studio.cmd`。
+macOS 使用 DMG 安装，Windows 使用 EXE 安装包，两者都从 **DIY Codex Bubble** 应用入口打开工坊。macOS 首次打开可能需要“仍要打开”；Windows 安装包目前未签名，也可能出现 SmartScreen 提示。
 
 **以后电脑开机并进入桌面：** 后台会启动工坊服务，并尝试恢复此前已应用过气泡的应用；无需打开终端或网页。**如果中途彻底退出应用：** 打开“DIY Codex Bubble”应用，在工坊里点对应的“重新启动”按钮。原版 Codex／豆包图标无法给已彻底退出的应用补上启动参数；如果直接用原图标重开，需先完全退出，再从工坊重新启动。开机自动恢复设置仅作用于当前电脑用户，工坊右侧可关闭。
 
@@ -78,7 +78,7 @@ macOS 现在推荐使用发布页里的 DMG：把 `DIY Codex Bubble.app` 拖到�
 
 Windows 测试版会查找常见的应用安装位置和可信发布者的 Microsoft Store 包。若找不到应用，可在启动工坊前设置 `BUBBLE_STUDIO_CODEX_EXE` 或 `BUBBLE_STUDIO_DOUBAO_EXE` 为实际 `.exe` 路径。部分 Windows 商店应用可能不接受调试端口参数；若一直显示“未连接”，请在 [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues) 附上 Windows 版本、应用版本与 `.local/app-start.log` 中去除私人路径后的报错，勿上传聊天内容。
 
-页面顶部的「下载最新版」ZIP 已包含 Windows 的 `.cmd` 入口；Windows 桌面注入仍标为测试版，遇到连接问题请按上面的方式反馈。
+Windows 安装版的设置与日志位于 `%LOCALAPPDATA%\DIY Codex Bubble\Data`；升级保留设置。旧的源码 ZIP / `.cmd` 方式仍可用于开发，但需要自行安装 Python 和 Node.js。Windows 桌面注入仍标为测试版，遇到连接问题请按上面的方式反馈。
 
 ## 使用说明
 
