@@ -28,6 +28,7 @@ internal static class Launcher {
                 try { using(var process=Process.GetProcessById(Convert.ToInt32(item["ProcessId"]))) {
                     process.Kill();if(!process.WaitForExit(5000))throw new Exception("工坊后台服务未能退出 / Workshop service did not exit");
                 }} catch(ArgumentException) {} // The short-lived bridge may have exited already.
+                catch(InvalidOperationException) {} // It exited between lookup and termination.
             }
         }
     }
