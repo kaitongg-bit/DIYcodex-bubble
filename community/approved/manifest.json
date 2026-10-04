@@ -288,6 +288,38 @@
         "zh": "经人工审核收录的社区作品。",
         "en": "A community bubble accepted after manual review."
       }
+    },
+    {
+      "id": "bb18f587-c4a3-4757-9236-b3c119aeb7b8",
+      "community": true,
+      "name": "王之蔑视",
+      "nameEn": "王之蔑视",
+      "filename": "bb18f587-c4a3-4757-9236-b3c119aeb7b8.png",
+      "author": "王",
+      "license": "Non-commercial only",
+      "config": {
+        "width": 198,
+        "height": 162,
+        "left": 98,
+        "right": 115,
+        "top": 125,
+        "bottom": 130,
+        "scale": 0.6,
+        "padding": [
+          53.7,
+          38.2,
+          11.3,
+          46.8
+        ],
+        "color": "#44362f",
+        "radius": 0,
+        "borderWidth": 0,
+        "borderColor": "#d0d0d0"
+      },
+      "description": {
+        "zh": "经人工审核收录的社区作品。",
+        "en": "A community bubble accepted after manual review."
+      }
     }
   ]
 }
