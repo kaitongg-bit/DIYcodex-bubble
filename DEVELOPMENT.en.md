@@ -6,7 +6,7 @@ Technical information for contributors. Ordinary users should read [README](READ
 
 ## Running from source
 
-macOS, Python 3.9+, Node.js 22+; no npm install or frontend build is required.
+macOS is tested; Windows desktop injection is beta. Python 3.9+ and Node.js 22+ are required; no npm install or frontend build is required. On Windows, double-click `Start Bubble Studio.cmd` or `Start Bubble Apps.cmd`, or run `py -3 app/server.py`.
 
 ```sh
 git clone https://github.com/kaitongg-bit/DIYcodex-bubble.git
@@ -18,7 +18,7 @@ Open http://127.0.0.1:19329. `BUBBLE_STUDIO_DATA` sets a private data directory,
 
 ## Structure
 
-- `app/server.py`: the local asset library, import, presets, recovery area, and the macOS folder picker.
+- `app/server.py`: the local asset library, import, presets, recovery area, and system folder picker.
 - `app/bridge.mjs`: connects to desktop apps, applies and removes user-message styling.
 - `app/static/`: the visual editor, previews, and nine-slice canvas painting; `i18n.mjs` manages the Chinese/English UI, saved in the browser, and never changes bubble presets.
 - `tests/`: service tests in isolated temporary directories.
@@ -32,7 +32,9 @@ Corner radius 0 keeps the original image; border width 0 disables the outline. T
 
 Runtime styles are injected through the CDP port bound to `127.0.0.1:19327`; the official app bundle is never modified. Nine-slice is painted onto a single canvas to avoid seams. The match count is the number of currently mounted user messages and may be 0 during virtualization or page switches. The debug port is visible to local processes; fully quitting and restarting the desktop app closes it. Closing the studio does not auto-remove injected styles; restore first or fully restart the app.
 
-Only macOS desktop builds are verified so far; app updates may require adaptation.
+Only macOS desktop builds are verified on real devices so far. Windows service and launcher paths have mocked tests, but Store paths, CDP flags, and page selectors still need Windows acceptance; app updates may require adaptation.
+
+The Windows launcher is `scripts/windows-launch.py`, invoked by the two `.cmd` files. The server searches common installation paths and then Microsoft Store packages from expected publishers. `BUBBLE_STUDIO_CODEX_EXE` and `BUBBLE_STUDIO_DOUBAO_EXE` can point to the actual executable. An already running app is never force-quit; users are asked to exit it completely first.
 
 `Start Bubble Apps.command` starts the local studio and calls `/api/launch-active`, launching each configured app with its own CDP port. The per-platform monitor then reconnects and reapplies the saved style. A normally launched app cannot gain a debugging port after startup, so the endpoint asks the user to quit it manually and never terminates the process itself.
 

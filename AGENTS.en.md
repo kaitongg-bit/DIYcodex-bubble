@@ -2,7 +2,7 @@
 
 [中文](AGENTS.md)
 
-This project is DIY Codex Bubble (Bubble Studio), supporting the macOS Codex/ChatGPT and Doubao desktop apps. User-facing documentation lives in README; development details live in DEVELOPMENT.md.
+This project is DIY Codex Bubble (Bubble Studio). The macOS Codex/ChatGPT and Doubao desktop integrations are verified; Windows launching and file operations are beta, and desktop injection still needs real-device testing. User-facing documentation lives in README; development details live in DEVELOPMENT.md.
 
 ## Change constraints
 

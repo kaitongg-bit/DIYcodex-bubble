@@ -33,7 +33,12 @@ def clean_trash(s):
  if remaining!=s.get('trash',[]):s['trash']=remaining;save(s)
  return s
 def choose_folder(language="zh"):
- if sys.platform!='darwin':raise ValueError('目前仅支持 macOS 文件夹选择')
+ if sys.platform=='win32':
+  from tkinter import Tk,filedialog
+  root=Tk();root.withdraw();root.attributes('-topmost',True)
+  try:return filedialog.askdirectory(parent=root,title='Choose your bubble asset folder' if language.startswith('en') else '选择气泡素材文件夹')
+  finally:root.destroy()
+ if sys.platform!='darwin':raise ValueError('目前仅支持 macOS 或 Windows 文件夹选择')
  prompt='Choose your bubble asset folder' if language.startswith('en') else '选择气泡素材文件夹'
  script='try\nreturn POSIX path of (choose folder with prompt "'+prompt+'")\non error number -128\nreturn ""\nend try'
  result=subprocess.run(['/usr/bin/osascript','-e',script],capture_output=True,text=True)
@@ -101,6 +106,9 @@ def node_path():
  if n:return n
  fallback=Path.home()/'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node'
  if fallback.exists():return str(fallback)
+ if sys.platform=='win32':
+  candidate=Path(os.environ.get('ProgramFiles','C:/Program Files'))/'nodejs/node.exe'
+  if candidate.exists():return str(candidate)
  raise ValueError('请安装 Node.js 22 或以上版本')
 def bridge(action,platform="codex"):
  try:
@@ -117,20 +125,49 @@ def review_image(sid):
  result=subprocess.run(['gh','api',f'repos/kaitongg-bit/DIYcodex-bubble-submissions/contents/pending/{sid}/bubble.png'],capture_output=True,text=True,timeout=30)
  if result.returncode:raise ValueError('找不到待审图片')
  return base64.b64decode(json.loads(result.stdout)['content'])
+def windows_app_candidates(key):
+ names={'codex':('ChatGPT.exe','Codex.exe'),'doubao':('Doubao.exe',)}[key]
+ override=os.environ.get('BUBBLE_STUDIO_CODEX_EXE' if key=='codex' else 'BUBBLE_STUDIO_DOUBAO_EXE')
+ roots=[Path(value) for value in (os.environ.get('LOCALAPPDATA'),os.environ.get('ProgramFiles'),os.environ.get('ProgramFiles(x86)')) if value]
+ candidates=[Path(override)] if override else []
+ for root in roots:
+  for name in names:
+   stem=Path(name).stem
+   candidates.extend((root/'Programs'/stem/name,root/stem/name,root/'Programs'/stem/'app'/name))
+ return [p for p in candidates if p.is_file()]
+def windows_store_apps(key):
+ # Use only packages from the expected publisher; do not launch similarly named third-party apps.
+ filter_script="Get-AppxPackage | Where-Object { $_.Publisher -match 'OpenAI' -and $_.Name -match 'ChatGPT|Codex|OpenAI' }" if key=='codex' else "Get-AppxPackage | Where-Object { $_.Name -match 'Doubao' -and $_.Publisher -match 'ByteDance|Bytedance|Doubao' }"
+ script=f"{filter_script} | ForEach-Object {{ $p=$_; [xml]$m=(Get-AppxPackageManifest -Package $p.PackageFullName); foreach($a in $m.Package.Applications.Application) {{ if($a.Executable) {{ Join-Path $p.InstallLocation $a.Executable }} }} }}"
+ result=subprocess.run(['powershell.exe','-NoProfile','-Command',script],capture_output=True,text=True,timeout=15)
+ if result.returncode:return []
+ return [p for line in result.stdout.splitlines() if (p:=Path(line.strip())).is_file()]
+def windows_running_names():
+ result=subprocess.run(['tasklist.exe','/fo','csv','/nh'],capture_output=True,text=True,check=True,timeout=10)
+ import csv,io
+ return {row[0].casefold() for row in csv.reader(io.StringIO(result.stdout)) if row}
 def launch_platform(key,s):
- if sys.platform!='darwin':raise ValueError('目前仅支持 macOS')
+ if sys.platform not in ('darwin','win32'):raise ValueError('目前仅支持 macOS 和 Windows')
  descriptor=PLATFORMS[key]
- apps=[p for p in map(Path,descriptor['apps']) if p.exists()]
- if not apps:raise ValueError('未找到豆包桌面应用，请确认已安装 /Applications/Doubao.app' if key=='doubao' else '未找到 ChatGPT 或 Codex 应用')
- processes=subprocess.run(['/bin/ps','-axo','command='],capture_output=True,text=True,check=True)
- lines=(processes.stdout or '').splitlines()
- running_app=next((app for app in apps if any(line==str(app) or line.startswith(str(app)+' ') for line in lines)),None)
+ if sys.platform=='darwin':
+  apps=[p for p in map(Path,descriptor['apps']) if p.exists()]
+  processes=subprocess.run(['/bin/ps','-axo','command='],capture_output=True,text=True,check=True)
+  lines=(processes.stdout or '').splitlines()
+  running_app=next((app for app in apps if any(line==str(app) or line.startswith(str(app)+' ') for line in lines)),None)
+ else:
+  apps=windows_app_candidates(key) or windows_store_apps(key)
+  names={'codex':{'chatgpt.exe','codex.exe'},'doubao':{'doubao.exe'}}[key]
+  running=windows_running_names() if apps else set()
+  running_app=next((app for app in apps if app.name.casefold() in running),None)
+ if not apps:raise ValueError(f'未找到 {descriptor["name"]} 桌面应用；Windows 可设置 BUBBLE_STUDIO_{"CODEX" if key=="codex" else "DOUBAO"}_EXE 指向应用程序。' if sys.platform=='win32' else '未找到豆包桌面应用，请确认已安装 /Applications/Doubao.app' if key=='doubao' else '未找到 ChatGPT 或 Codex 应用')
  app=running_app or apps[0]
  if running_app:
   if bridge('status',key).get('connected'):return {'platform':key,'state':'connected','message':f'{descriptor["name"]} 已连接，气泡会自动恢复。'}
-  return {'platform':key,'state':'quit-required','message':f'{descriptor["name"]} 已普通启动。请保存输入并用 ⌘Q 完全退出，再点击启动。'}
+  shortcut='从任务栏完全退出' if sys.platform=='win32' else '用 ⌘Q 完全退出'
+  return {'platform':key,'state':'quit-required','message':f'{descriptor["name"]} 已普通启动。请保存输入并{shortcut}，再点击启动。'}
  with (DATA/'app-start.log').open('a') as log:
-  subprocess.Popen([str(app),'--remote-debugging-address=127.0.0.1',f'--remote-debugging-port={s["platforms"][key]["debugPort"]}'],stdout=log,stderr=log,start_new_session=True)
+  kwargs={'start_new_session':True} if sys.platform=='darwin' else {'creationflags':getattr(subprocess,'CREATE_NEW_PROCESS_GROUP',0)}
+  subprocess.Popen([str(app),'--remote-debugging-address=127.0.0.1',f'--remote-debugging-port={s["platforms"][key]["debugPort"]}'],stdout=log,stderr=log,**kwargs)
  return {'platform':key,'state':'starting','message':f'{descriptor["name"]} 正在启动，连接后会自动恢复已选气泡。'}
 def watch(platform):
  while not STOP.wait(3):
@@ -220,9 +257,10 @@ class Handler(BaseHTTPRequestHandler):
      if str(p) not in s['folders']:s['folders'].append(str(p))
      save(s);return self.send({'ok':True})
     if self.path=='/api/open-trash':
-     if sys.platform!='darwin':raise ValueError('目前仅支持 macOS')
      trash=DATA/'trash';trash.mkdir(exist_ok=True)
-     subprocess.run(['/usr/bin/open',str(trash.resolve())],check=True,capture_output=True)
+     if sys.platform=='darwin':subprocess.run(['/usr/bin/open',str(trash.resolve())],check=True,capture_output=True)
+     elif sys.platform=='win32':os.startfile(str(trash.resolve()))
+     else:raise ValueError('目前仅支持 macOS 和 Windows')
      return self.send({'ok':True})
     if self.path=='/api/import':
      data=base64.b64decode(body['data'],validate=True)

@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/kaitongg-bit/DIYcodex-bubble"><img src="https://img.shields.io/github/stars/kaitongg-bit/DIYcodex-bubble" alt="Stars"></a>
-  <img src="https://img.shields.io/badge/platform-macOS-lightgrey" alt="macOS">
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20beta-lightgrey" alt="macOS and Windows beta">
   <img src="https://img.shields.io/badge/Python-3.9%2B-blue" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/Node.js-22%2B-blue" alt="Node.js 22+">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT">
@@ -25,9 +25,9 @@
   <a href="DEVELOPMENT.md">Development</a>
 </p>
 
-Works with the **Codex / ChatGPT and Doubao desktop apps** on macOS. Only **your messages** get a bubble — assistant replies keep their original look. Click **Restore default** to switch back anytime.
+Works with the **Codex / ChatGPT and Doubao desktop apps** on macOS, with a new Windows beta launcher. Only **your messages** get a bubble — assistant replies keep their original look. Click **Restore default** to switch back anytime.
 
-**macOS only · English / 中文 UI · Local library · Restore anytime · MIT licensed**
+**macOS verified · Windows beta · English / 中文 UI · Local library · MIT licensed**
 
 > An independent appearance tool. **Not an official OpenAI or Codex product.** It does not modify the official app installation. The desktop studio lives on `main`; the public gallery is generated separately and published from `gh-pages`, so source downloads do not include it.
 
@@ -37,7 +37,7 @@ The companion [douyinQIPAO design skill](https://github.com/kaitongg-bit/douyinQ
 
 ## Features
 
-- **Keep your favorites together.** Import PNGs or pick a local asset folder in Finder. Search, favorite, and switch anytime.
+- **Keep your favorites together.** Import PNGs or pick a local asset folder in the system file picker. Search, favorite, and switch anytime.
 - **Tune directly on the canvas.** Drag the gold handles to set stretch guides; move and resize the blue text box — no four-sided coordinate inputs.
 - **Preview before applying.** Try short messages, long messages, or your own text, in light and dark themes.
 - **Add the finishing touches.** Text color, scale, corner radius, and an extra border; **Fit to chat** sizes large images comfortably.
@@ -61,16 +61,20 @@ Use **EN / 中文** in the top-right corner to switch languages. Bubble settings
 
 ## Quick start
 
-Currently supported on **macOS with the Codex / ChatGPT or Doubao desktop app**. Python 3.9+ and Node.js 22+ must already be installed. This is not a standalone app with bundled runtimes.
+The macOS desktop integration has been tested on real apps. A Windows beta now includes the local studio, file operations, and app launch path; applying bubbles to Windows desktop apps still needs real-device testing. Python 3.9+ and Node.js 22+ must already be installed. This is not a standalone app with bundled runtimes.
 
 1. [Download the latest ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest) and extract it somewhere you can keep.
-2. In **Finder**, double-click `Start Bubble Studio.command` to open the studio.
+2. On macOS, double-click `Start Bubble Studio.command` in Finder. On Windows, double-click `Start Bubble Studio.cmd` in File Explorer.
 3. Open [Bubble Studio](http://127.0.0.1:19329). Try the three built-in presets, click **＋** to import a PNG, or **Connect a folder** to select your asset folder.
 4. Select **Codex / Doubao** in the header, tune and preview a bubble, save it, then click **Apply to Codex** or **Apply to Doubao**.
 
-**After fully quitting the apps:** Save your input, quit Codex / ChatGPT and Doubao with `⌘Q`, then double-click `Start Bubble Apps.command` in Finder. It starts the studio and launches every app with a selected bubble; the saved bubbles return when connected. You can also click **Launch all selected bubbles** in the studio. Launching the original app icons does not enable the local debugging ports required by the studio. The studio never force-quits an already running app; if it reports a normal launch, quit that app manually and try again.
+**After fully quitting the apps:** Save your input and quit Codex / ChatGPT and Doubao completely. Run `Start Bubble Apps.command` on macOS or `Start Bubble Apps.cmd` on Windows. It starts the studio and launches every app with a selected bubble; saved bubbles return when connected. You can also click **Launch all selected bubbles** in the studio. Launching the original app icons does not enable the local debugging ports required by the studio. The studio never force-quits an already running app; on macOS quit it with `⌘Q`, or on Windows fully exit it from the taskbar, before trying again.
 
-**Seeing source code after double-clicking?** Open the launcher from Finder — Codex's file preview only displays its contents. For runtime requirements and running from source, see [Development notes](DEVELOPMENT.md).
+**Seeing source code after double-clicking?** Open the launcher from your system file manager — Codex's file preview only displays its contents. For runtime requirements and running from source, see [Development notes](DEVELOPMENT.en.md).
+
+The Windows beta searches common installation paths and Microsoft Store packages from expected publishers. If an app is not found, set `BUBBLE_STUDIO_CODEX_EXE` or `BUBBLE_STUDIO_DOUBAO_EXE` to its real `.exe` path before launching the studio. Some Store app builds may ignore the debugging flags. If the studio remains disconnected, report the Windows and app versions in [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues), along with relevant errors from `.local/app-start.log` after removing private paths. Do not upload chat content.
+
+Windows users should choose a **Windows beta** package from [Releases](https://github.com/kaitongg-bit/DIYcodex-bubble/releases). The main **Download** link still points to the stable macOS-verified package.
 
 ## Usage
 
@@ -94,7 +98,7 @@ Images do not need to match Douyin dimensions. Larger PNGs work too; use **Fit t
 
 The **×** on an asset moves its PNG to the studio's recovery folder; **Undo delete** restores it. **This also moves the original file from a connected folder.**
 
-To delete permanently, click **Open recovery folder**, move unwanted files to macOS Trash in Finder, then empty the Trash yourself. Emptying the Trash cannot be undone; refresh the library to update recovery records.
+To delete permanently, click **Open recovery folder** and delete unwanted files in your system file manager. The studio cannot undo that deletion; refresh the library to update recovery records.
 
 ## Gallery and community
 

@@ -89,6 +89,14 @@ class StudioTests(unittest.TestCase):
   with patch.object(server,'choose_folder',return_value=''):
    self.assertTrue(self.request('/api/choose-folder',{})['cancelled'])
   self.assertEqual(server.state(),before)
+ def test_windows_folder_picker(self):
+  import types
+  root=unittest.mock.Mock()
+  fake=types.SimpleNamespace(Tk=lambda:root,filedialog=types.SimpleNamespace(askdirectory=lambda **kwargs:str(self.folder)))
+  with patch.object(server.sys,'platform','win32'),patch.dict(sys.modules,{'tkinter':fake}):
+   self.request('/api/choose-folder',{})
+  root.withdraw.assert_called_once();root.destroy.assert_called_once()
+  self.assertEqual(len(self.request('/api/library')['items']),2)
  def test_open_trash_and_external_removal(self):
   a=self.connect()[0];self.request('/api/delete',{'id':a['id']})
   entry=server.state()['trash'][0]
@@ -99,6 +107,10 @@ class StudioTests(unittest.TestCase):
   Path(entry['stored']).unlink()
   result=self.request('/api/library')
   self.assertEqual(result['trashCount'],0);self.assertIsNone(result['latestTrashId'])
+ def test_windows_open_recovery_folder(self):
+  with patch.object(server.sys,'platform','win32'),patch.object(server.os,'startfile',create=True) as open_folder:
+   self.request('/api/open-trash',{})
+   open_folder.assert_called_once_with(str((server.DATA/'trash').resolve()))
  def test_builtins_first_run_delete_and_explicit_restore(self):
   server.save(json.loads(json.dumps(server.DEFAULT)))
   items=self.request('/api/library')['items'];self.assertEqual(len(items),3)
@@ -177,6 +189,24 @@ class StudioTests(unittest.TestCase):
    result=self.request('/api/launch-active',{})
    self.assertEqual(result['results'][0]['state'],'quit-required')
    launch.assert_not_called()
+ def test_windows_launch_and_running_app_never_force_quits(self):
+  exe=self.folder/'ChatGPT.exe';exe.write_bytes(b'')
+  self.request('/api/platform',{'platform':'codex'})
+  with patch.object(server.sys,'platform','win32'),patch.dict(os.environ,{'BUBBLE_STUDIO_CODEX_EXE':str(exe)}),patch.object(server,'windows_running_names',return_value=set()),patch.object(server.subprocess,'Popen') as launch:
+   self.request('/api/launch',{'platform':'codex'})
+   self.assertEqual(launch.call_args.args[0],[str(exe),'--remote-debugging-address=127.0.0.1','--remote-debugging-port=19327'])
+   self.assertIn('creationflags',launch.call_args.kwargs)
+  with patch.object(server.sys,'platform','win32'),patch.dict(os.environ,{'BUBBLE_STUDIO_CODEX_EXE':str(exe)}),patch.object(server,'windows_running_names',return_value={'chatgpt.exe'}),patch.object(server,'bridge',return_value={'connected':False}),patch.object(server.subprocess,'Popen') as launch:
+   result=self.request('/api/launch',{'platform':'codex'})
+   self.assertEqual(result['state'],'quit-required')
+   self.assertIn('任务栏',result['message'])
+   launch.assert_not_called()
+ def test_windows_store_discovery_uses_expected_publisher(self):
+  from subprocess import CompletedProcess
+  exe=self.folder/'Codex.exe';exe.write_bytes(b'')
+  with patch.object(server.subprocess,'run',return_value=CompletedProcess([],0,str(exe)+'\n','')) as run:
+   self.assertEqual(server.windows_store_apps('codex'),[exe])
+   self.assertIn('Publisher',run.call_args.args[0][-1])
  def test_asset_route_cannot_read_arbitrary_path(self):
   with self.assertRaises(urllib.error.HTTPError) as err:self.request('/asset/../../app/server.py')
   self.assertEqual(err.exception.code,404)

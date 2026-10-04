@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/kaitongg-bit/DIYcodex-bubble"><img src="https://img.shields.io/github/stars/kaitongg-bit/DIYcodex-bubble" alt="Stars"></a>
-  <img src="https://img.shields.io/badge/platform-macOS-lightgrey" alt="macOS">
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20beta-lightgrey" alt="macOS and Windows beta">
   <img src="https://img.shields.io/badge/Python-3.9%2B-blue" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/Node.js-22%2B-blue" alt="Node.js 22+">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT">
@@ -25,9 +25,9 @@
   <a href="DEVELOPMENT.md">开发说明</a>
 </p>
 
-支持 **Codex / ChatGPT 和豆包桌面端**，只替换 **你发送的消息气泡**，助手回复保持原样；想换回来，点「恢复默认」即可。
+支持 **macOS 上的 Codex / ChatGPT 和豆包桌面端**；新增 Windows 测试版入口。只替换 **你发送的消息气泡**，助手回复保持原样；想换回来，点「恢复默认」即可。
 
-**macOS 专用 · 中英文界面 · 本机素材库 · 随时恢复 · MIT 许可**
+**macOS 已验证 · Windows 测试版 · 中英文界面 · 本机素材库 · MIT 许可**
 
 > 非 OpenAI / Codex 官方产品，独立的聊天外观工具，不修改官方应用安装包。桌面工坊源码在 `main` 分支；在线作品库是单独生成并发布到 `gh-pages` 的 Pages 站点，不会混进源码下载。
 
@@ -37,7 +37,7 @@
 
 ## 特性
 
-- **把素材收进自己的库** —— 导入 PNG，或在 Finder 中选择整个素材文件夹；搜索、收藏、随时切换。
+- **把素材收进自己的库** —— 导入 PNG，或在系统文件夹窗口中选择整个素材文件夹；搜索、收藏、随时切换。
 - **直接在图上调** —— 拖动金色手柄设置拉伸线，拖动蓝色文字框调整文字位置和空间，不用计算四边数字。
 - **短句长话都看看** —— 实时预览短句、长消息和自己的文字，可切换浅色、深色背景。
 - **再加一点细节** —— 文字颜色、缩放、圆角和边框；「适合聊天」帮你把大图缩到合适大小。
@@ -61,16 +61,20 @@
 
 ## 快速开始
 
-目前支持 **macOS 上的 Codex / ChatGPT 或豆包桌面应用**，需要电脑已有 Python 3.9+ 和 Node.js 22+；暂不提供免安装运行环境的独立 App。
+macOS 桌面应用已经实机验证；Windows 版的本机工坊、文件操作和启动流程已适配，但桌面气泡注入还需要 Windows 用户实机验收。需要 Python 3.9+ 和 Node.js 22+；暂不提供免安装运行环境的独立 App。
 
 1. [下载最新版 ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest)，解压到一个方便保留的位置。
-2. 在 **Finder（访达）** 双击 `Start Bubble Studio.command` 打开工坊。
+2. macOS 在 **Finder（访达）** 双击 `Start Bubble Studio.command`；Windows 在资源管理器双击 `Start Bubble Studio.cmd`。
 3. 打开 [气泡工坊](http://127.0.0.1:19329)，先试内置的三款预设；也可以点左上角 **＋** 导入图片，或点「连接素材文件夹」选择你的素材目录。
 4. 顶部选择 **Codex / 豆包**，选一款气泡调整、预览、保存，再点「应用到 Codex」或「应用到豆包」。
 
-**完全退出应用后如何恢复？** 保存正在输入的内容，用 `⌘Q` 完全退出 Codex / ChatGPT 和豆包，再从 Finder 双击 `Start Bubble Apps.command`。它会启动工坊，并一次启动所有已经选好气泡的应用；连接后气泡自动恢复。也可以在工坊点「同时恢复已选气泡」。直接点击应用原来的图标正常启动时，不会带上工坊需要的本机调试端口，因此气泡不会出现。工坊不会强制退出你已经打开的应用；若提示应用已普通启动，请手动 `⌘Q` 后再试。
+**完全退出应用后如何恢复？** 保存正在输入的内容，完全退出 Codex / ChatGPT 和豆包，再运行 `Start Bubble Apps.command`（macOS）或 `Start Bubble Apps.cmd`（Windows）。它会启动工坊，并一次启动所有已经选好气泡的应用；连接后气泡自动恢复。也可以在工坊点「同时恢复已选气泡」。直接点击应用原来的图标正常启动时，不会带上工坊需要的本机调试端口，因此气泡不会出现。工坊不会强制退出你已经打开的应用；若提示应用已普通启动，请在 macOS 用 `⌘Q`、Windows 从任务栏完全退出后再试。
 
-**双击后只看到了代码？** 请从 Finder 打开 `.command` 文件，Codex 的文件预览只是查看代码。如果提示缺少运行环境，或需要从源码启动，见 [运行与开发说明](DEVELOPMENT.md)。
+**双击后只看到了代码？** 请从系统文件管理器打开对应的启动文件，Codex 的文件预览只是查看代码。如果提示缺少运行环境，或需要从源码启动，见 [运行与开发说明](DEVELOPMENT.md)。
+
+Windows 测试版会查找常见的应用安装位置和可信发布者的 Microsoft Store 包。若找不到应用，可在启动工坊前设置 `BUBBLE_STUDIO_CODEX_EXE` 或 `BUBBLE_STUDIO_DOUBAO_EXE` 为实际 `.exe` 路径。部分 Windows 商店应用可能不接受调试端口参数；若一直显示“未连接”，请在 [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues) 附上 Windows 版本、应用版本与 `.local/app-start.log` 中去除私人路径后的报错，勿上传聊天内容。
+
+Windows 用户请从 [Releases](https://github.com/kaitongg-bit/DIYcodex-bubble/releases) 选择标有 **Windows beta** 的版本；页面顶部的“下载最新版”仍指向 macOS 已验证的稳定版。
 
 ## 使用说明
 
@@ -94,7 +98,7 @@
 
 素材卡片上的 **×** 会把 PNG 移入工坊回收区，点「撤销删除」可以恢复。**连接文件夹中的原文件也会一起移入回收区**，请留意这一点。
 
-想彻底删掉，点「打开回收文件夹」，在 Finder 中移入系统废纸篓，再自行清空；清空后无法恢复，回到工坊刷新即可更新记录。
+想彻底删掉，点「打开回收文件夹」，在系统文件管理器中删除不需要的文件；删除后无法由工坊撤销，回到工坊刷新即可更新记录。
 
 ## 社区与作品库
 

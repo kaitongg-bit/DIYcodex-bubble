@@ -6,7 +6,7 @@
 
 ## 运行源码
 
-macOS、Python 3.9+、Node.js 22+；无需 npm 安装或前端构建。
+macOS 已实测；Windows 桌面注入为测试版。需要 Python 3.9+、Node.js 22+；无需 npm 安装或前端构建。Windows 可双击 `Start Bubble Studio.cmd` 或 `Start Bubble Apps.cmd`；也可运行 `py -3 app/server.py`。
 
 ```sh
 git clone https://github.com/kaitongg-bit/DIYcodex-bubble.git
@@ -18,7 +18,7 @@ python3 app/server.py
 
 ## 结构
 
-- `app/server.py`：本机素材库、导入、预设、回收区与 macOS 文件夹窗口。
+- `app/server.py`：本机素材库、导入、预设、回收区与系统文件夹窗口。
 - `app/bridge.mjs`：连接桌面应用、应用与撤销用户消息样式。
 - `app/static/`：可视化编辑器、预览与九切片画布绘制；`i18n.mjs` 管理中英文 UI，语言保存在浏览器本地，不改变气泡预设。
 - `tests/`：隔离临时目录的服务测试。
@@ -32,7 +32,9 @@ PNG 两轴分别支持 2–4096 px；直接导入单张限制 2 MB，连接文�
 
 通过绑定 `127.0.0.1:19327` 的 CDP 端口注入运行时样式，不修改官方应用包。九切片绘制到同一画布，避免分块接缝。匹配数是当前挂载的用户消息数，虚拟化或页面切换时可能为 0。调试端口对本机程序可见，完全退出并正常启动桌面应用可关闭它。关闭工作台不会自动撤销已注入样式；请先恢复默认或完全重启应用。
 
-目前仅 macOS 桌面端经过验证，应用升级后可能需要适配。
+目前仅 macOS 桌面端经过实机验证。Windows 的本机服务与启动代码有模拟测试，但 Store 安装位置、CDP 参数和页面选择器仍需在 Windows 实机验收；应用升级后可能需要适配。
+
+Windows 启动器是 `scripts/windows-launch.py`，由两个 `.cmd` 文件调用。服务会先查找常见安装位置，再查找发布者匹配的 Microsoft Store 包；需要时可设置 `BUBBLE_STUDIO_CODEX_EXE` / `BUBBLE_STUDIO_DOUBAO_EXE` 为实际程序路径。已运行的应用不会被强制结束；启动器只会提示先完全退出。
 
 `Start Bubble Apps.command` 在本机启动工坊后调用 `/api/launch-active`，为每个已应用平台分别以对应 CDP 端口启动应用。后台监控继续按平台重连并应用已保存的样式。普通启动的应用无法在运行中追加调试端口，接口只提示用户手动完全退出，不强制结束进程。完全退出后通过该启动器重新打开，才能恢复连接。
 
