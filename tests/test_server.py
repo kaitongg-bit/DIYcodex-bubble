@@ -300,6 +300,19 @@ class StudioTests(unittest.TestCase):
    self.assertEqual(result['state'],'quit-required')
    self.assertIn('任务栏',result['message'])
    launch.assert_not_called()
+ def test_windows_choose_app_saves_platform_path_without_applying(self):
+  exe=self.folder/'Doubao.exe';exe.touch()
+  self.request('/api/platform',{'platform':'doubao'})
+  with patch.object(server.sys,'platform','win32'),patch.object(server,'choose_executable',return_value=str(exe)),patch.object(server.subprocess,'Popen') as launch:
+   self.request('/api/choose-app',{'platform':'doubao'})
+   self.assertEqual(server.state()['platforms']['doubao']['applicationPath'],str(exe))
+   self.assertNotIn('applicationPath',server.state()['platforms']['codex'])
+   launch.assert_not_called()
+  installer=self.folder/'DoubaoOnlineInstaller_1.0.exe';installer.touch()
+  with patch.object(server.sys,'platform','win32'),patch.object(server,'choose_executable',return_value=str(installer)):
+   with self.assertRaises(urllib.error.HTTPError):self.request('/api/choose-app',{'platform':'doubao'})
+  with patch.object(server.sys,'platform','win32'),patch.object(server,'choose_executable',return_value=''):
+   self.assertTrue(self.request('/api/choose-app',{'platform':'doubao'})['cancelled'])
  def test_windows_store_discovery_uses_expected_publisher(self):
   from subprocess import CompletedProcess
   exe=self.folder/'Codex.exe';exe.write_bytes(b'')

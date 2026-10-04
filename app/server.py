@@ -4,6 +4,7 @@ from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
 from pathlib import Path
 import json,struct,hashlib,base64,subprocess,shutil,os,threading,time,argparse,uuid,sys
 from autostart import enabled as autostart_enabled, configure as configure_autostart
+from windows_apps import find_candidates, choose_executable
 ROOT=Path(__file__).resolve().parent.parent
 DATA=Path(os.environ.get('BUBBLE_STUDIO_DATA',str(ROOT/'.local')))
 DATA.mkdir(parents=True,exist_ok=True)
@@ -146,15 +147,7 @@ def review_image(sid):
  if result.returncode:raise ValueError('找不到待审图片')
  return base64.b64decode(json.loads(result.stdout)['content'])
 def windows_app_candidates(key):
- names={'codex':('ChatGPT.exe','Codex.exe'),'doubao':('Doubao.exe',)}[key]
- override=os.environ.get('BUBBLE_STUDIO_CODEX_EXE' if key=='codex' else 'BUBBLE_STUDIO_DOUBAO_EXE')
- roots=[Path(value) for value in (os.environ.get('LOCALAPPDATA'),os.environ.get('ProgramFiles'),os.environ.get('ProgramFiles(x86)')) if value]
- candidates=[Path(override)] if override else []
- for root in roots:
-  for name in names:
-   stem=Path(name).stem
-   candidates.extend((root/'Programs'/stem/name,root/stem/name,root/'Programs'/stem/'app'/name))
- return [p for p in candidates if p.is_file()]
+ return find_candidates(key,state()['platforms'][key].get('applicationPath'))
 def windows_store_apps(key):
  # Use only packages from the expected publisher; do not launch similarly named third-party apps.
  filter_script="Get-AppxPackage | Where-Object { $_.Publisher -match 'OpenAI' -and $_.Name -match 'ChatGPT|Codex|OpenAI' }" if key=='codex' else "Get-AppxPackage | Where-Object { $_.Name -match 'Doubao' -and $_.Publisher -match 'ByteDance|Bytedance|Doubao' }"
@@ -180,7 +173,7 @@ def launch_platform(key,s):
   names={'codex':{'chatgpt.exe','codex.exe'},'doubao':{'doubao.exe'}}[key]
   running=windows_running_names() if apps else set()
   running_app=next((app for app in apps if app.name.casefold() in running),None)
- if not apps:raise ValueError(f'未找到 {descriptor["name"]} 桌面应用；Windows 可设置 BUBBLE_STUDIO_{"CODEX" if key=="codex" else "DOUBAO"}_EXE 指向应用程序。' if sys.platform=='win32' else '未找到豆包桌面应用，请确认已安装 /Applications/Doubao.app' if key=='doubao' else '未找到 ChatGPT 或 Codex 应用')
+ if not apps:raise ValueError(f'未找到 {descriptor["name"]} 桌面应用；请点“选择应用位置”，选取已安装应用的 .exe 文件。' if sys.platform=='win32' else '未找到豆包桌面应用，请确认已安装 /Applications/Doubao.app' if key=='doubao' else '未找到 ChatGPT 或 Codex 应用')
  app=running_app or apps[0]
  if running_app:
   if bridge('status',key).get('connected'):return {'platform':key,'state':'connected','message':f'{descriptor["name"]} 已连接，气泡会自动恢复。'}
@@ -237,6 +230,20 @@ class Handler(BaseHTTPRequestHandler):
    length=int(self.headers.get('Content-Length','0'))
    if length>4*1024*1024:raise ValueError('请求过大')
    body=json.loads(self.rfile.read(length))
+   if self.path=='/api/choose-app':
+    if sys.platform!='win32':raise ValueError('此选项用于 Windows 桌面应用')
+    key=body.get('platform')
+    if key not in PLATFORMS or key!=state()['platform']:raise ValueError('平台已切换，请刷新后重试')
+    selected=choose_executable(key)
+    if not selected:return self.send({'ok':True,'cancelled':True})
+    executable=Path(selected)
+    names={'codex':{'codex.exe','chatgpt.exe'},'doubao':{'doubao.exe'}}[key]
+    if not executable.is_file() or executable.name.casefold() not in names:raise ValueError('请选择已安装应用的 .exe 文件')
+    with LOCK:
+     s=state()
+     if s['platform']!=key:raise ValueError('平台已切换，请刷新后重试')
+     s['platforms'][key]['applicationPath']=str(executable);save(s)
+    return self.send({'ok':True,'platform':key})
    if self.path=='/api/choose-folder':
     selected=choose_folder(self.headers.get('Accept-Language','zh'))
     if not selected:return self.send({'ok':True,'cancelled':True})

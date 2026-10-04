@@ -5,6 +5,11 @@ let platform='codex';
 const platformName=()=>platform==='doubao'?t('豆包'):'Codex';
 const $=id=>document.getElementById(id);let items=[],selected=null,config=null,activeId=null,favOnly=false,mode='short',dark=false,dragKey=null,toastTimer,dirty=false,textDrag=null,latestTrashId=null,lastStatus={connected:false,matched:0},folderCount=0,codexPreview=null;const launchResults={};
 function launchDescription(result){const name=result.platform==='doubao'?t('豆包'):'Codex';if(result.state==='quit-required')return t('{platform} 已普通启动。请完全退出后点“重新启动”。',{platform:name});if(result.state==='starting')return t('正在启动 {platform}；连接后气泡会自动出现。',{platform:name});if(result.state==='connected')return t('{platform} 已连接，气泡会自动恢复。',{platform:name});return result.message;}
+const windowsHost=/Win/i.test(navigator.userAgentData?.platform||navigator.platform||'');
+const chooseAppButton=document.createElement('button');
+chooseAppButton.id='chooseApp';chooseAppButton.className='quiet';chooseAppButton.hidden=!windowsHost;
+$('launch').after(chooseAppButton);
+chooseAppButton.onclick=async()=>{chooseAppButton.disabled=true;try{const result=await api('choose-app',{});if(!result.cancelled){delete launchResults[platform];toast(t('已记住应用位置，请重新应用或启动气泡'));}}catch(e){toast(e.message);}finally{chooseAppButton.disabled=false;}};
 async function api(path,body){const response=await fetch('/api/'+path,body?{method:'POST',headers:{'Content-Type':'application/json','X-Bubble-Studio':'1','Accept-Language':language},body:JSON.stringify({platform,...body})}:{headers:{'Accept-Language':language}});const data=await response.json();if(!response.ok)throw Error(data.error||t('操作失败'));if(['apply','restore','launch'].includes(path)&&data.platform&&data.platform!==platform)throw Error(t('平台已切换，请刷新后重试'));return data;}
 function toast(text){$('toast').textContent=t(text);$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',4200);}
 const defaults=bubbleDefaults;
@@ -74,6 +79,7 @@ $('importSettings').onclick=()=>{if(selected)$('settingsInput').click();};
 $('settingsInput').onchange=async e=>{try{const file=e.target.files[0];if(!file||!selected)return;if(file.size>32768)throw Error('设置文件过大');const settings=JSON.parse(await file.text());if(settings.version!==1||!settings.config)throw Error('不是有效的气泡设置文件');if(settings.filename!==selected.filename&&!selected.filename.endsWith('-'+settings.filename))throw Error('请先选择与设置文件对应的 PNG');await api('save',{id:selected.id,config:settings.config});dirty=false;await load(selected.id);toast('已导入设置，尚未应用到聊天');}catch(e){toast(e.message);}finally{e.target.value='';}};
 
 function platformLabels(){
+ chooseAppButton.textContent=t('选择 {platform} 应用位置…',{platform:platformName()});
  for(const button of document.querySelectorAll('[data-platform]'))button.setAttribute('aria-pressed',String(button.dataset.platform===platform));
  $('previewPlatformName').textContent=platformName();
  $('previewComposer').textContent=t('发送消息给 {platform}',{platform:platformName()})+' ↑';

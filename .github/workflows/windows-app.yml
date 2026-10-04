@@ -25,6 +25,7 @@ jobs:
         run: |
           python -c "import sys,unittest; sys.path.insert(0,'tests'); import test_server; names=[n for n in unittest.defaultTestLoader.getTestCaseNames(test_server.StudioTests) if n.startswith('test_windows_') or n in ('test_platform_isolation_switch_restore_and_delete','test_real_folder_and_independent_presets','test_frontend_element_references_exist_after_ui_removal','test_login_autostart_registration_is_per_user_and_reversible')]; result=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(test_server.StudioTests(n) for n in names)); sys.exit(not result.wasSuccessful())"
           python -m unittest discover -s tests -p test_windows_package.py -q
+          python -m unittest discover -s tests -p test_windows_apps.py -q
       - name: Build application and portable ZIP
         env:
           BUILD_VERSION: ${{ inputs.version }}

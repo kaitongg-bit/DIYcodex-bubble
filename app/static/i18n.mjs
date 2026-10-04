@@ -1,5 +1,7 @@
 // UI text only: language changes never save or apply a bubble.
 export const english = {
+  "选择 {platform} 应用位置…": "Locate {platform} app…",
+  "已记住应用位置，请重新应用或启动气泡": "App location saved. Apply your bubble or restart the app.",
   "豆包": "Doubao",
   "发送消息给 {platform}": "Message {platform}",
   "换肤应用": "Target app",
