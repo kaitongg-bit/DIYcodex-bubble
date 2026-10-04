@@ -73,3 +73,10 @@ See [community/DEPLOYMENT.md](community/DEPLOYMENT.md) for Worker secrets, Turns
 ## One-time setup and login restore
 
 The first `Start Bubble Studio` launch calls `/api/first-run`, selects the bundled alien cat for Codex, and registers a per-user login item. Existing state is preserved. `scripts/login-start.py` starts the local server and restores previously applied apps without opening a browser. macOS uses a user LaunchAgent; Windows uses the current user Startup folder. `Open Bubble Apps.app` / `.vbs` is a terminal-free manual restore launcher. `Open Bubble Studio.app` / `.vbs` opens the studio in the browser without reapplying or launching target apps. Normal app icons cannot add CDP flags to a fully quit app.
+
+
+## Windows runtime bootstrap
+
+`packaging/windows/RuntimeBootstrap.cs` checks bundled executables, real PATH executables (excluding Store aliases), the Python launcher, and a private runtime cache. Python must be 3.10–3.x; Node must be 22+ with fetch and WebSocket. Probes use timeouts. Only missing runtimes are downloaded from official HTTPS URLs, SHA-256 checked and validated in a staging directory before installation. npm is excluded. Cancellation or failure removes temporary downloads; reopening retries. The cache is `%LOCALAPPDATA%\DIY Codex Bubble\Runtime`; user settings remain in `Data`. Neither PATH nor other Python/Node installations are changed.
+
+Build with `scripts/build-windows-app.py --version VERSION --light` for the small build, without `--light` for offline. Inno Setup accepts `StageName=windows-light`, `Variant=light`, or `windows-app` / `offline`. Both share an application ID, so upgrades preserve settings. Upgrading to light removes obsolete bundled runtimes. The per-user startup entry invokes the EXE with `--restore`, so it checks runtimes again; uninstall removes only the owned startup entry and preserves the cache and settings. Windows CI verifies runtime reuse, fresh verified downloads, cached Python imports, offline-to-light upgrade, launcher startup, and uninstall.

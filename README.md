@@ -64,11 +64,11 @@
 macOS 桌面应用已经实机验证；Windows 版的本机工坊、文件操作和启动流程已适配，但桌面气泡注入还需要 Windows 用户实机验收。
 
 1. macOS 下载最新版 [DMG](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest)，打开后把 `DIY Codex Bubble.app` 拖到“应用程序”。第一次打开若被 macOS 拦截，到“系统设置 → 隐私与安全性 → 仍要打开”放行一次。
-2. Windows 10/11（x64）下载发布页中的 `windows-x64-setup.exe`，双击安装。安装后从桌面或开始菜单打开 **DIY Codex Bubble**；已内置 Python 和 Node.js，不需要管理员权限。也可下载 `windows-x64-portable.zip`，完整解压后双击其中的 `DIY Codex Bubble.exe`。
+2. Windows 10/11（x64）下载发布页中的 `windows-x64-light-setup.exe`，双击安装。安装后从桌面或开始菜单打开 **DIY Codex Bubble**；不需要管理员权限。会自动复用兼容的 Python（3.10+、低于 4）和 Node.js（22+）；缺少时显示进度并下载到工坊自己的目录，不改系统环境。离线使用请选择 `windows-x64-offline-setup.exe`。便携版同样分为 `light-portable.zip` 和 `offline-portable.zip`，完整解压后双击 `DIY Codex Bubble.exe`。
 3. 首次运行会自动把内置 **外星小猫** 应用到 Codex，并开启「电脑开机后自动恢复」。如果 Codex 此前已普通启动，页面会提示先完全退出，再点「重新启动」；工坊不会强制关闭正在使用的应用。
 4. 之后可以直接用外星小猫，也可以在工坊里换图片、调拉伸线，或切换到豆包单独应用气泡。顶部「恢复默认」可随时撤销当前平台的换肤。
 
-Windows 完整版下载约 33 MB，安装后约 107–111 MB，其中大部分是内置的运行环境；安装包和便携包都包含这些环境。源码版需要自行安装兼容的 Python 和 Node.js，具体要求见 [运行与开发说明](DEVELOPMENT.md)。
+Windows 默认提供小安装包：已有兼容环境就不重复安装；首次下载可以关闭窗口取消，之后重新打开会重试。完整离线版约 33 MB，安装后约 107–111 MB。若电脑没有运行环境，小安装包首次准备后也会增加相应的磁盘占用；已有环境的用户才会省下这些空间。图片、设置和下载的环境分别保存在本机独立目录，升级保留设置。
 
 macOS 使用 DMG 安装，Windows 使用 EXE 安装包，两者都从 **DIY Codex Bubble** 应用入口打开工坊。macOS 首次打开可能需要“仍要打开”；Windows 安装包目前未签名，也可能出现 SmartScreen 提示。
 

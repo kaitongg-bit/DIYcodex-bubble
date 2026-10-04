@@ -22,12 +22,25 @@ internal static class RuntimeBootstrap {
             }
         } catch { return null; }
     }
+    internal static string CommandPath(string command) {
+        if(Path.IsPathRooted(command))return File.Exists(command)?command:null;
+        foreach(string folder in (Environment.GetEnvironmentVariable("PATH")??"").Split(Path.PathSeparator)) {
+            try {
+                string path=Path.Combine(folder.Trim('"'),command);
+                // Store execution aliases can open the Store instead of a runtime.
+                if(path.IndexOf("\\WindowsApps\\",StringComparison.OrdinalIgnoreCase)<0&&File.Exists(path))return path;
+            } catch {}
+        }
+        return null;
+    }
     internal static string Find(string root, string cache, bool python) {
         string name = python ? "python" : "node";
         string bundled = Path.Combine(root,"runtime",name,name+".exe");
         if (File.Exists(bundled)) { string value=Probe(bundled,python); if(value!=null)return value; }
         foreach(string command in python ? new[]{"python.exe","python3.exe","py.exe"} : new[]{"node.exe",Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),"nodejs","node.exe")}) {
-            string value=Probe(command,python,command=="py.exe"?"-3 ":""); if(value!=null)return value;
+            string path=CommandPath(command);
+            if(path==null)continue;
+            string value=Probe(path,python,command=="py.exe"?"-3 ":""); if(value!=null)return value;
         }
         string cached = Path.Combine(cache,name,name+".exe");
         return File.Exists(cached) ? Probe(cached,python) : null;

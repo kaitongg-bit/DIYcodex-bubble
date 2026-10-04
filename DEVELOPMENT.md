@@ -78,3 +78,10 @@ Windows 发布包用 `python3 scripts/build-windows-zip.py --version 版本号` 
 See [community/DEPLOYMENT.md](community/DEPLOYMENT.md) for Worker secrets, Turnstile, private queue, owner-only moderation and the verified local acceptance boundary. Regression tests: `node --test tests/submissions.test.mjs`.
 
 DMG 不包含 `.git`，作者审核发布必须连接独立的源码 checkout。在本机数据目录（macOS 为 `~/Library/Application Support/DIY Codex Bubble`）放置私有 `review.json`，格式为 `{"repository":"源码仓库绝对路径"}`；也可用 `BUBBLE_STUDIO_REVIEW_ROOT` 覆盖。此配置不随发布包分发。审核脚本从该仓库查找 gh-pages 工作树；需要时另设 `PAGES_WORKTREE`。普通用户无需配置审核台。
+
+
+## Windows runtime bootstrap
+
+`packaging/windows/RuntimeBootstrap.cs` checks bundled executables, real PATH executables (excluding Store aliases), the Python launcher, and a private runtime cache. Python must be 3.10–3.x; Node must be 22+ with fetch and WebSocket. Probes use timeouts. Only missing runtimes are downloaded from official HTTPS URLs, SHA-256 checked and validated in a staging directory before installation. npm is excluded. Cancellation or failure removes temporary downloads; reopening retries. The cache is `%LOCALAPPDATA%\DIY Codex Bubble\Runtime`; user settings remain in `Data`. Neither PATH nor other Python/Node installations are changed.
+
+Build with `scripts/build-windows-app.py --version VERSION --light` for the small build, without `--light` for offline. Inno Setup accepts `StageName=windows-light`, `Variant=light`, or `windows-app` / `offline`. Both share an application ID, so upgrades preserve settings. Upgrading to light removes obsolete bundled runtimes. The per-user startup entry invokes the EXE with `--restore`, so it checks runtimes again; uninstall removes only the owned startup entry and preserves the cache and settings. Windows CI verifies runtime reuse, fresh verified downloads, cached Python imports, offline-to-light upgrade, launcher startup, and uninstall.
