@@ -45,6 +45,7 @@ internal static class Launcher {
             string root = AppDomain.CurrentDomain.BaseDirectory;
             if(args.Length==2&&args[0]=="--stop-owned-service") { StopOwnedService(args[1]);return 0; }
             if(Array.IndexOf(args,"--uninstall-startup")>=0) {
+                StopOwnedService(root);
                 string startup=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup),"DIY Codex Bubble Restore.vbs");
                 if(File.Exists(startup)&&File.ReadAllText(startup).Contains(root.TrimEnd(Path.DirectorySeparatorChar)))File.Delete(startup);
                 return 0;
