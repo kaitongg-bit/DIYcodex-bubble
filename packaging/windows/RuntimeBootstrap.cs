@@ -76,7 +76,7 @@ internal static class RuntimeBootstrap {
                 // Only node.exe and its license are needed, not npm.
                 using(var zip=ZipFile.OpenRead(archive)) foreach(var entry in zip.Entries) {
                     string leaf=Path.GetFileName(entry.FullName);
-                    if(leaf=="node.exe" || leaf=="LICENSE")entry.ExtractToFile(Path.Combine(stage,leaf));
+                    if(entry.FullName.Split('/').Length==2 && (leaf=="node.exe" || leaf=="LICENSE"))entry.ExtractToFile(Path.Combine(stage,leaf));
                 }
             }
             string exe=Path.Combine(stage,name+".exe");
