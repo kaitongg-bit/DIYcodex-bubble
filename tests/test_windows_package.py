@@ -28,5 +28,25 @@ class WindowsPackageTests(unittest.TestCase):
                 request.assert_called_with('/api/launch-active', {})
 
 
+class PackagedStartupTests(unittest.TestCase):
+    def test_packaged_startup_uses_bootstrap_and_is_detected(self):
+        import sys
+        sys.path.insert(0, str(ROOT / 'app'))
+        import autostart
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / 'Bubble'
+            root.mkdir()
+            (root / 'DIY Codex Bubble.exe').touch()
+            content = autostart.item_content(platform='win32', root=root).decode('utf-16')
+            self.assertIn('DIY Codex Bubble.exe', content)
+            self.assertIn('--restore', content)
+            self.assertNotIn('login-start.py', content)
+            path = autostart.item_path(platform='win32', appdata=temporary)
+            path.parent.mkdir(parents=True)
+            path.write_bytes(content.encode('utf-16'))
+            self.assertTrue(autostart.enabled(platform='win32', appdata=temporary))
+            self.assertFalse(autostart.configure(False, platform='win32', appdata=temporary))
+
+
 if __name__ == '__main__':
     unittest.main()

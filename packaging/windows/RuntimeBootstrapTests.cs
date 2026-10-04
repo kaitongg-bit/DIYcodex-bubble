@@ -16,6 +16,7 @@ internal static class RuntimeBootstrapTests {
         if(RuntimeBootstrap.Probe(p,true)==null||RuntimeBootstrap.Probe(npath,false)==null)throw new Exception("Downloaded runtimes failed validation");
         File.WriteAllText(Path.Combine(isolated,"python","python313._pth"),"python313.zip\n.\n"+Path.Combine(root,"app")+"\n"+root+"\n");
         var info=new System.Diagnostics.ProcessStartInfo(p,"-X utf8 -c \"import server,autostart,ssl\"") { UseShellExecute=false,CreateNoWindow=true };
+        info.EnvironmentVariables["BUBBLE_STUDIO_DATA"]=Path.Combine(isolated,"test-data");
         using(var process=System.Diagnostics.Process.Start(info)) { process.WaitForExit();if(process.ExitCode!=0)throw new Exception("Cached Python cannot import the workshop"); }
         Console.WriteLine("Reused compatible runtimes; downloaded and verified missing Python and Node.");
         return 0;
