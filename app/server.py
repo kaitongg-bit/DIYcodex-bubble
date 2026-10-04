@@ -331,12 +331,12 @@ class Handler(BaseHTTPRequestHandler):
       try:results.append(launch_platform(key,s))
       except (ValueError,OSError,subprocess.SubprocessError) as error:results.append({'platform':key,'state':'unavailable','message':str(error)})
      return self.send({'ok':True,'results':results,'message':' '.join(result['message'] for result in results)})
-    if body.get('platform',s['platform'])!=s['platform']:raise ValueError('平台已切换，请刷新后重试')
-    if self.path=='/api/restore-builtins':
-     added=seed_presets(s,restore=True);return self.send({'ok':True,'added':added})
     if self.path=='/api/community-import':
      key=import_community(s,body.get('kind'),body.get('id'))
      return self.send({'ok':True,'id':key})
+    if body.get('platform',s['platform'])!=s['platform']:raise ValueError('平台已切换，请刷新后重试')
+    if self.path=='/api/restore-builtins':
+     added=seed_presets(s,restore=True);return self.send({'ok':True,'added':added})
     if self.path=='/api/open-material-folder':
      item=next((x for x in library(s) if x['id']==body.get('id')),None)
      if not item:raise ValueError('请先选择一款气泡')

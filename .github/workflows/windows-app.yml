@@ -5,7 +5,7 @@ on:
       version:
         description: Release version without v
         required: true
-        default: '0.2.10'
+        default: '0.2.11'
 permissions:
   contents: read
 jobs:
@@ -26,7 +26,7 @@ jobs:
         run: python -m pip install Pillow==11.3.0
       - name: Tests
         run: |
-          python -c "import sys,unittest; sys.path.insert(0,'tests'); import test_server; names=[n for n in unittest.defaultTestLoader.getTestCaseNames(test_server.StudioTests) if n.startswith('test_windows_') or n in ('test_platform_isolation_switch_restore_and_delete','test_real_folder_and_independent_presets','test_frontend_element_references_exist_after_ui_removal','test_login_autostart_registration_is_per_user_and_reversible')]; result=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(test_server.StudioTests(n) for n in names)); sys.exit(not result.wasSuccessful())"
+          python -c "import sys,unittest; sys.path.insert(0,'tests'); import test_server; names=[n for n in unittest.defaultTestLoader.getTestCaseNames(test_server.StudioTests) if n.startswith('test_windows_') or n.startswith('test_gallery_import_after_') or n in ('test_platform_isolation_switch_restore_and_delete','test_real_folder_and_independent_presets','test_frontend_element_references_exist_after_ui_removal','test_login_autostart_registration_is_per_user_and_reversible')]; result=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(test_server.StudioTests(n) for n in names)); sys.exit(not result.wasSuccessful())"
           python -m unittest discover -s tests -p test_windows_package.py -q
           python -m unittest discover -s tests -p test_windows_apps.py -q
           python -m unittest discover -s tests -p test_updater.py -q
@@ -110,7 +110,7 @@ jobs:
           $ready = $false
           for ($attempt = 0; $attempt -lt 30; $attempt++) {
             Start-Sleep -Seconds 1
-            try { $version = Invoke-RestMethod http://127.0.0.1:19329/api/update; if ($version.current -eq '0.2.10') { $ready = $true; break } } catch {}
+            try { $version = Invoke-RestMethod http://127.0.0.1:19329/api/update; if ($version.current -eq '0.2.11') { $ready = $true; break } } catch {}
           }
           if (!$ready) { throw 'Automatic update did not reopen studio' }
           $afterUpdate = (Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*$install*app*server.py*" }).ProcessId

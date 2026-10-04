@@ -39,6 +39,15 @@ class StudioTests(unittest.TestCase):
    self.request('/api/open-material-folder',{'id':first['id']})
    self.assertEqual(run.call_args.args[0],['/usr/bin/open',str((server.DATA/'community').resolve())])
   shutil.rmtree(server.DATA/'community')
+ def test_gallery_import_after_doubao_selection_ignores_stale_platform_without_switching_or_applying(self):
+  self.request('/api/platform',{'platform':'doubao'})
+  catalog=json.dumps({'items':[{'id':'test-cat','filename':'test-cat.png','name':'Test cat','config':server.defaults(198,162)}]}).encode()
+  with patch.object(server,'public_gallery_bytes',side_effect=lambda path,limit:catalog if path.endswith('manifest.json') else png()):
+   result=self.request('/api/community-import',{'platform':'codex','kind':'community','id':'test-cat'})
+  data=self.request('/api/library')
+  self.assertEqual(data['platform'],'doubao')
+  self.assertIn(result['id'],[item['id'] for item in data['items']])
+  self.assertIsNone(server.state()['platforms']['codex']['active']);self.assertIsNone(server.state()['platforms']['doubao']['active'])
  def test_community_import_rejects_traversal_unlisted_and_invalid_settings(self):
   with patch.object(server,'public_gallery_bytes') as fetch:
    for body in ({'kind':'community','id':'../test'},{'kind':'https://evil.invalid','id':'cat'}):
