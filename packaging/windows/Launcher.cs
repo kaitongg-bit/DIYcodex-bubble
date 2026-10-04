@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 internal static class Launcher {
+    internal static void MigrateStartup(string root, string startup) {
+        if(!File.Exists(startup))return;
+        string content=File.ReadAllText(startup);
+        if(content.Contains(root.TrimEnd(Path.DirectorySeparatorChar))&&content.Contains("login-start.py")&&content.Contains("WScript.Shell")) {
+            string command="\""+Path.Combine(root,"DIY Codex Bubble.exe")+"\" --restore";
+            File.WriteAllText(startup,"Set shell = CreateObject(\"WScript.Shell\")\r\nshell.Run \""+command.Replace("\"","\"\"")+"\", 0, False\r\n",System.Text.Encoding.Unicode);
+        }
+    }
     [STAThread]
     private static int Main(string[] args) {
         try {
@@ -15,6 +23,7 @@ internal static class Launcher {
                 if(File.Exists(startup)&&File.ReadAllText(startup).Contains(root.TrimEnd(Path.DirectorySeparatorChar)))File.Delete(startup);
                 return 0;
             }
+            MigrateStartup(root,Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup),"DIY Codex Bubble Restore.vbs"));
             string script = Path.Combine(root,"scripts","login-start.py");
             if(!File.Exists(script))throw new Exception("安装文件不完整，请重新安装。 / Installation files are missing. Please reinstall.");
             string basePath=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"DIY Codex Bubble");

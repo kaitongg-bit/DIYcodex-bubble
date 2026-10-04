@@ -38,7 +38,7 @@ jobs:
       - name: Verify runtime reuse and fresh downloads
         run: |
           $csc = "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
-          & $csc /nologo /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "/out:$pwd\dist\runtime-tests.exe" (Resolve-Path packaging/windows/RuntimeBootstrap.cs).Path (Resolve-Path packaging/windows/RuntimeBootstrapTests.cs).Path
+          & $csc /nologo /main:RuntimeBootstrapTests /reference:System.Windows.Forms.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll "/out:$pwd\dist\runtime-tests.exe" (Resolve-Path packaging/windows/RuntimeBootstrap.cs).Path (Resolve-Path packaging/windows/RuntimeBootstrapTests.cs).Path (Resolve-Path packaging/windows/Launcher.cs).Path
           if ($LASTEXITCODE -ne 0) { throw 'Bootstrap test compilation failed' }
           & dist/runtime-tests.exe (Resolve-Path dist/windows-light).Path (Join-Path $env:RUNNER_TEMP 'bubble-bootstrap-test')
           if ($LASTEXITCODE -ne 0) { throw 'Runtime resolution tests failed' }
