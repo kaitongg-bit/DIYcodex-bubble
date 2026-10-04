@@ -68,6 +68,8 @@ The macOS desktop integration has been tested on real apps. A Windows beta now i
 3. On first run, the built-in **Alien cat** bubble is selected for Codex and **Restore after computer startup** is enabled. If Codex is already running normally, fully quit it and use the studio's Restart button. The studio never force-quits an app.
 4. Keep the preset or open the studio later to choose another PNG, adjust it, or apply a separate bubble to Doubao. **Restore default** reverses the current app's skin.
 
+The full Windows build downloads at around 33 MB and uses around 107–111 MB after installation, mostly for bundled runtimes. Both the installer and portable package include them. Running from source requires compatible Python and Node.js installations; see [Development notes](DEVELOPMENT.en.md).
+
 **After your computer starts and reaches the desktop:** the local service starts in the background and tries to restore apps with applied bubbles. No terminal or web page is needed. **After fully quitting an app:** open `DIY Codex Bubble.app` on macOS and use the Restart button in the studio. The original Codex / Doubao icon cannot add startup flags after a full quit; if you reopen an app through its original icon, fully quit it and restart it from the studio. Computer startup is per-user and can be turned off in the studio.
 
 **To change bubbles later:** open `DIY Codex Bubble.app` on macOS, or open `http://127.0.0.1:19329` in your browser. The one-time setup launcher is not needed again.
