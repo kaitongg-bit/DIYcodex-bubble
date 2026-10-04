@@ -54,6 +54,17 @@ class StudioTests(unittest.TestCase):
   self.assertIn('id="help"',page)
   self.assertIn('id="appsLauncher"',page)
   self.assertIn('id="autostart"',page)
+  self.assertIn('id="revealLauncher"',page)
+  self.assertIn('id="revealLauncherGuide"',page)
+ def test_reveal_launcher_opens_file_manager_without_launching_apps(self):
+  with patch.object(server.sys,'platform','darwin'),patch.object(server.subprocess,'run') as run:
+   self.assertTrue(self.request('/api/reveal-launcher',{})['ok'])
+   args=run.call_args.args[0]
+   self.assertEqual(args[:2],['/usr/bin/open','-R'])
+   self.assertTrue(args[2].endswith('Open Bubble Apps.app'))
+  with patch.object(server.sys,'platform','win32'),patch.object(server.subprocess,'Popen') as popen:
+   self.assertTrue(self.request('/api/reveal-launcher',{})['ok'])
+   self.assertEqual(popen.call_args.args[0][0],'explorer.exe')
  def test_login_autostart_registration_is_per_user_and_reversible(self):
   with tempfile.TemporaryDirectory() as home:
    root=Path(home)/'studio';root.mkdir()
