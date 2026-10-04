@@ -63,7 +63,7 @@ class StudioTests(unittest.TestCase):
    self.assertTrue(self.request('/api/reveal-launcher',{})['ok'])
    args=run.call_args.args[0]
    self.assertEqual(args[:2],['/usr/bin/open','-R'])
-   self.assertTrue(args[2].endswith('Open Bubble Apps.app'))
+   self.assertTrue(args[2].endswith('Open Bubble Apps.command'))
    self.assertTrue(self.request('/api/reveal-launcher',{'kind':'studio'})['ok'])
    self.assertTrue(run.call_args.args[0][2].endswith('Open Bubble Studio.app'))
   with patch.object(server.sys,'platform','win32'),patch.object(server.subprocess,'Popen') as popen:
