@@ -4,6 +4,7 @@ import {t,language,setLanguage,translatePage} from './i18n.mjs';
 let platform='codex';
 const platformName=()=>platform==='doubao'?t('豆包'):'Codex';
 const $=id=>document.getElementById(id);let items=[],selected=null,config=null,activeId=null,favOnly=false,mode='short',dark=false,dragKey=null,toastTimer,dirty=false,textDrag=null,latestTrashId=null,lastStatus={connected:false,matched:0},folderCount=0,codexPreview=null;const launchResults={};
+const windowsHost=/Win/i.test(navigator.userAgentData?.platform||navigator.platform||'');
 function launchDescription(result){const name=result.platform==='doubao'?t('豆包'):'Codex';if(result.state==='quit-required')return t('{platform} 已普通启动。请完全退出后点“重新启动”。',{platform:name});if(result.state==='starting')return t('正在启动 {platform}；连接后气泡会自动出现。',{platform:name});if(result.state==='connected')return t('{platform} 已连接，气泡会自动恢复。',{platform:name});return result.message;}
 async function api(path,body){const response=await fetch('/api/'+path,body?{method:'POST',headers:{'Content-Type':'application/json','X-Bubble-Studio':'1','Accept-Language':language},body:JSON.stringify({platform,...body})}:{headers:{'Accept-Language':language}});const data=await response.json();if(!response.ok)throw Error(data.error||t('操作失败'));if(['apply','restore','launch'].includes(path)&&data.platform&&data.platform!==platform)throw Error(t('平台已切换，请刷新后重试'));return data;}
 function toast(text){$('toast').textContent=t(text);$('toast').style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').style.display='none',4200);}
@@ -50,6 +51,7 @@ collapseLibrary(localStorage.getItem('bubble-library-collapsed')==='1');
 
 function refreshLanguage(){
  translatePage();renderGallery();setDirty(dirty);updateStatus(lastStatus);codexPreview?.refreshLanguage();
+ $('quitInstruction').textContent=t(windowsHost?'保存输入后关闭全部应用窗口，并在任务栏托盘菜单中选择“退出”（如果有）':'保存输入后按 ⌘Q 完全退出应用');
  $('launchActive').textContent=t('同时恢复已选气泡');
  if($('toast').style.display==='block')$('toast').textContent=t($('toast').textContent);
  if($('designDialog').open)$('designPrompt').value=t($('designPrompt').value);
@@ -64,7 +66,6 @@ function refreshLanguage(){
 $('language').onclick=()=>{setLanguage(language==='en'?'zh':'en');refreshLanguage();};
 refreshLanguage();
 
-const windowsHost=/Win/i.test(navigator.userAgentData?.platform||navigator.platform||'');
 $('studioLauncher').textContent=windowsHost?'Start Bubble Studio.cmd':'Start Bubble Studio.command';
 $('appsLauncher').textContent=windowsHost?'Start Bubble Apps.cmd':'Start Bubble Apps.command';
 function showOnboarding(scroll=false){
