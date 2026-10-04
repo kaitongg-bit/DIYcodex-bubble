@@ -82,7 +82,13 @@ internal static class RuntimeBootstrap {
             string exe=Path.Combine(stage,name+".exe");
             if(Probe(exe,python)==null)throw new Exception("运行环境验证失败 / Runtime validation failed: "+name);
             if(Directory.Exists(target))Directory.Delete(target,true);
-            Directory.Move(stage,target);
+            // Antivirus can briefly hold a freshly verified executable on Windows.
+            for(int attempt=0;;attempt++) {
+                if(cancelled())throw new OperationCanceledException();
+                try { Directory.Move(stage,target);break; }
+                catch(IOException) { if(attempt>=19)throw;System.Threading.Thread.Sleep(250); }
+                catch(UnauthorizedAccessException) { if(attempt>=19)throw;System.Threading.Thread.Sleep(250); }
+            }
             return Path.Combine(target,name+".exe");
         } finally {
             if(File.Exists(archive))File.Delete(archive);
