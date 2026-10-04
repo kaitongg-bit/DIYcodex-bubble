@@ -21,7 +21,7 @@ class Updater:
   return sys.platform=='darwin' and self.root.name=='Resources' and self.root.parent.name=='Contents' and self.root.parent.parent.suffix=='.app' and os.access(self.root.parent.parent.parent,os.W_OK)
  def start(self,action):
   with self.lock:
-   if self.job and self.job.is_alive():raise ValueError('正在检查或更新，请稍候')
+   if self.info['state'] in ('checking','downloading','installing') or (self.job and self.job.is_alive()):raise ValueError('正在检查或更新，请稍候')
    if action=='install' and (self.info['state']!='available' or not self.installed()):raise ValueError('请先检查更新；自动更新仅支持已安装的应用')
    self.info={'state':'checking' if action=='check' else 'downloading','current':VERSION}
    self.job=threading.Thread(target=self.work,args=(action,),daemon=True);self.job.start()
@@ -31,6 +31,12 @@ class Updater:
  def work(self,action):
   try:
    if action=='check':
+    # Only our own cached update packages are removed; never touch user assets.
+    folder=self.data/'updates'
+    for pattern in ('DIYcodex-bubble-*.exe','DIYcodex-bubble-*.dmg','DIYcodex-bubble-*.part'):
+     for old in folder.glob(pattern):
+      try:old.unlink()
+      except OSError:pass
     request=urllib.request.Request(API,headers={'Accept':'application/vnd.github+json','User-Agent':'DIY-Codex-Bubble-Updater'})
     with urllib.request.urlopen(request,timeout=20) as response:
      raw=response.read(1024*1024+1)
