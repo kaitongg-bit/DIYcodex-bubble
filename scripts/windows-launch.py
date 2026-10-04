@@ -27,6 +27,11 @@ def main():
  if len(sys.argv)>1 and sys.argv[1]=='apps':
   result=request('/api/launch-active',{})
   print(result.get('message') or result.get('error') or '')
+ elif len(sys.argv)>1 and sys.argv[1]=='studio':
+  setup=request('/api/first-run',{})
+  if setup.get('firstRun'):
+   try:request('/api/launch-active',{})
+   except Exception:pass
  webbrowser.open(URL)
 
 if __name__=='__main__':

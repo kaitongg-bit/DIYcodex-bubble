@@ -63,16 +63,14 @@ Use **EN / 中文** in the top-right corner to switch languages. Bubble settings
 
 The macOS desktop integration has been tested on real apps. A Windows beta now includes the local studio, file operations, and app launch path; applying bubbles to Windows desktop apps still needs real-device testing. Python 3.9+ and Node.js 22+ must already be installed. This is not a standalone app with bundled runtimes.
 
-1. [Download the latest ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest) and extract it somewhere you can keep.
-2. On macOS, double-click `Start Bubble Studio.command` in Finder. On Windows, double-click `Start Bubble Studio.cmd` in File Explorer.
-3. Open [Bubble Studio](http://127.0.0.1:19329). Try the three built-in presets, click **＋** to import a PNG, or **Connect a folder** to select your asset folder.
-4. Choose **Codex / Doubao** under **Target app**, tune and preview a bubble, then click **Apply to Codex** or **Apply to Doubao**. This saves the settings and tries to launch the app if needed.
+1. [Download the latest ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest) and extract it to a folder you will keep.
+2. On macOS, double-click `Start Bubble Studio.command` in Finder; on Windows, double-click `Start Bubble Studio.cmd` in File Explorer. This completes the one-time setup.
+3. On first run, the built-in **Alien cat** bubble is selected for Codex and **Restore bubbles after login** is enabled. If Codex is already running normally, fully quit it and use the studio's Restart button. The studio never force-quits an app.
+4. Keep the preset or open the studio later to choose another PNG, adjust it, or apply a separate bubble to Doubao. **Restore default** reverses the current app's skin.
 
-A getting-started guide appears above the studio on first use. Reopen it later from **Getting started** in the header. Starting the studio needs no administrator access or manual terminal commands.
+**After login:** the local service starts in the background and tries to restore apps with applied bubbles. No terminal or web page is needed. **After fully quitting an app:** double-click `Open Bubble Apps.app` on macOS or `Open Bubble Apps.vbs` on Windows to silently restart selected apps. You may pin this launcher to the Dock or desktop. The original Codex / Doubao icon cannot add startup flags after a full quit; if you reopen an app through its original icon, fully quit it and reopen with the bubble launcher. Login startup is per-user and can be turned off in the studio.
 
-**If the app was already started normally:** Save your input and fully quit the target app with `⌘Q` on macOS or from the taskbar on Windows, then click the prominent **I fully quit it — restart** button in the studio. The studio never force-quits your app. After a later full quit, you can run `Start Bubble Apps.command` on macOS or `Start Bubble Apps.cmd` on Windows to restore all selected bubbles. Launching the original app icon does not enable the required local debugging port.
-
-**After a computer restart:** Your PNGs and settings remain on this computer, but the runtime bubble style does not reappear automatically. Double-click the appropriate `Start Bubble Apps` launcher to restore your selected bubbles.
+The getting-started guide appears on first use and can be reopened from the header. Administrator access and manual terminal commands are unnecessary. If you move the studio folder, turn login restore on again from the new location.
 
 **Seeing source code after double-clicking?** Open the launcher from your system file manager — Codex's file preview only displays its contents. For runtime requirements and running from source, see [Development notes](DEVELOPMENT.en.md).
 

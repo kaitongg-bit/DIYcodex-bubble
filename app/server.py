@@ -3,6 +3,7 @@
 from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
 from pathlib import Path
 import json,struct,hashlib,base64,subprocess,shutil,os,threading,time,argparse,uuid,sys
+from autostart import enabled as autostart_enabled, configure as configure_autostart
 ROOT=Path(__file__).resolve().parent.parent
 DATA=Path(os.environ.get('BUBBLE_STUDIO_DATA',str(ROOT/'.local')))
 DATA.mkdir(parents=True,exist_ok=True)
@@ -69,6 +70,17 @@ def seed_presets(s,restore=False):
   key=asset_id(destination);s['presets'].setdefault(key,item['config'])
   if not s.get('preferredId') and item['id']=='alien-cat':s['preferredId']=key
  s['builtinsInitialized']=True;save(s);return added
+def first_run_setup(s):
+ """Apply the bundled alien cat once on a fresh install, preserving older state."""
+ if not s.get('firstRunPending'):return {'firstRun':False,'activeId':s['platforms']['codex'].get('active',{}).get('id') if s['platforms']['codex'].get('active') else None}
+ seed_presets(s)
+ item=next(x for x in library(s) if x['filename']=='alien-cat.png' and x['builtin'])
+ if not s['platforms']['codex'].get('active'):
+  s['platforms']['codex']['active']={'id':item['id'],'path':item['path'],'config':item['config'],'version':uuid.uuid4().hex}
+  if s['platform']=='codex':s['active']=s['platforms']['codex']['active']
+ s['firstRunPending']=False
+ save(s)
+ return {'firstRun':True,'activeId':s['platforms']['codex']['active']['id']}
 def library(s=None):
  s=s or state();items=[];seen=set()
  for folder in s['folders']+[str(DATA/'imports'),str(DATA/'builtins')]:
@@ -194,6 +206,7 @@ class Handler(BaseHTTPRequestHandler):
    return self.send(Path(item['path']).read_bytes(),kind='image/png')
   if path=='/api/status':
    s=state();return self.send({**status_for(s),'activeId':s['active']['id'] if s['active'] else None,'platform':s['platform']})
+  if path=='/api/autostart':return self.send({'enabled':autostart_enabled()})
   if path.startswith('/asset/'):
    item=next((x for x in library() if x['id']==path[7:]),None)
    if not item:return self.send({'error':'素材不存在'},404)
@@ -226,6 +239,15 @@ class Handler(BaseHTTPRequestHandler):
      if key not in PLATFORMS:raise ValueError('不支持的平台')
      s['platform']=key;s['active']=s['platforms'][key].get('active');s['debugPort']=s['platforms'][key]['debugPort'];save(s)
      return self.send({'ok':True,'platform':key,'status':status_for(s)})
+    if self.path=='/api/autostart':
+     if type(body.get('enabled')) is not bool:raise ValueError('请选择开启或关闭')
+     return self.send({'ok':True,'enabled':configure_autostart(body['enabled'])})
+    if self.path=='/api/first-run':
+     result=first_run_setup(s)
+     if result['firstRun']:
+      try:result['autostartEnabled']=configure_autostart(True)
+      except (ValueError,OSError) as error:result['autostartError']=str(error)
+     return self.send({'ok':True,**result})
     if self.path=='/api/review/decision':
      sid=str(body.get('id',''));action=body.get('action');reason=str(body.get('reason',''))[:500]
      if action not in ('approve','reject'):raise ValueError('审核动作无效')
@@ -325,7 +347,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
  global PORT
  parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=19329);args=parser.parse_args();PORT=args.port
- if not STATE.exists():save(DEFAULT)
+ if not STATE.exists():save({**DEFAULT,'firstRunPending':True})
  for platform in PLATFORMS:threading.Thread(target=watch,args=(platform,),daemon=True).start()
  print(f'气泡工坊 http://127.0.0.1:{PORT}',flush=True)
  try:ThreadingHTTPServer(('127.0.0.1',PORT),Handler).serve_forever()

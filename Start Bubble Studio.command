@@ -16,4 +16,14 @@ if ! /usr/bin/curl -fsS --max-time 1 http://127.0.0.1:19329/api/library >/dev/nu
     sleep 0.2
   done
 fi
+setup=$(/usr/bin/curl -fsS --max-time 10 \
+  -H 'Origin: http://127.0.0.1:19329' -H 'X-Bubble-Studio: 1' \
+  -H 'Content-Type: application/json' --data '{}' \
+  http://127.0.0.1:19329/api/first-run 2>/dev/null || true)
+if [[ "$setup" == *'"firstRun": true'* ]]; then
+  /usr/bin/curl -fsS --max-time 30 \
+    -H 'Origin: http://127.0.0.1:19329' -H 'X-Bubble-Studio: 1' \
+    -H 'Content-Type: application/json' --data '{}' \
+    http://127.0.0.1:19329/api/launch-active >/dev/null 2>&1 || true
+fi
 /usr/bin/open http://127.0.0.1:19329

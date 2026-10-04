@@ -4,6 +4,7 @@ from unittest.mock import patch
 TASK_DATA=tempfile.TemporaryDirectory();os.environ['BUBBLE_STUDIO_DATA']=TASK_DATA.name
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'app'))
 import server
+import autostart
 
 def png(w=198,h=162):
  def chunk(tag,data):return struct.pack('>I',len(data))+tag+data+struct.pack('>I',zlib.crc32(tag+data)&0xffffffff)
@@ -52,6 +53,42 @@ class StudioTests(unittest.TestCase):
   self.assertIn('id="onboarding"',page)
   self.assertIn('id="help"',page)
   self.assertIn('id="appsLauncher"',page)
+  self.assertIn('id="autostart"',page)
+ def test_login_autostart_registration_is_per_user_and_reversible(self):
+  with tempfile.TemporaryDirectory() as home:
+   root=Path(home)/'studio';root.mkdir()
+   path=autostart.item_path('darwin',home=home)
+   self.assertFalse(autostart.enabled('darwin',home=home))
+   self.assertTrue(autostart.configure(True,'darwin',home=home,python='/usr/bin/python3',root=root))
+   content=path.read_bytes()
+   self.assertIn(b'login-start.py',content)
+   self.assertIn(b'RunAtLoad',content)
+   self.assertFalse(autostart.configure(False,'darwin',home=home))
+   self.assertFalse(path.exists())
+   appdata=Path(home)/'AppData';path=autostart.item_path('win32',appdata=appdata)
+   self.assertTrue(autostart.configure(True,'win32',appdata=appdata,python=Path(home)/'Python'/'python.exe',root=root))
+   self.assertIn('login-start.py',path.read_bytes().decode('utf-16'))
+   self.assertIn(', 0, False',path.read_bytes().decode('utf-16'))
+   self.assertFalse(autostart.configure(False,'win32',appdata=appdata))
+ def test_autostart_api_validates_boolean_and_origin(self):
+  with patch.object(server,'autostart_enabled',return_value=False),patch.object(server,'configure_autostart',return_value=True) as configure:
+   self.assertFalse(self.request('/api/autostart')['enabled'])
+   self.assertTrue(self.request('/api/autostart',{'enabled':True})['enabled'])
+   configure.assert_called_once_with(True)
+   with self.assertRaises(urllib.error.HTTPError):self.request('/api/autostart',{'enabled':'yes'})
+   with self.assertRaises(urllib.error.HTTPError):self.request('/api/autostart',{'enabled':False},origin=False)
+ def test_fresh_install_selects_alien_cat_once_without_overwriting_user_choice(self):
+  s=server.state();s['firstRunPending']=True;s['builtinsInitialized']=False;server.save(s)
+  with patch.object(server,'configure_autostart',return_value=True) as enable:
+   first=self.request('/api/first-run',{})
+   self.assertTrue(first['firstRun']);self.assertTrue(first['autostartEnabled'])
+   enable.assert_called_once_with(True)
+  active=server.state()['platforms']['codex']['active']
+  self.assertEqual(Path(active['path']).name,'alien-cat.png')
+  self.assertEqual(active['config']['color'],'#ffffff')
+  self.assertEqual(first['activeId'],active['id'])
+  self.assertFalse(self.request('/api/first-run',{})['firstRun'])
+  self.assertEqual(server.state()['platforms']['codex']['active'],active)
  def test_import_and_bad_png_rollback(self):
   result=self.request('/api/import',{'name':'import.png','data':base64.b64encode(png()).decode()});self.assertTrue(result['id']);before=len(server.library())
   with self.assertRaises(urllib.error.HTTPError):self.request('/api/import',{'name':'bad.png','data':base64.b64encode(b'bad').decode()})

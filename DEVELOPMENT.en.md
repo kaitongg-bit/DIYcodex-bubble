@@ -69,3 +69,7 @@ Extra bridge tests: `node --test tests/bridge.test.mjs`. Real-device launches mu
 ## Anonymous submission intake
 
 See [community/DEPLOYMENT.md](community/DEPLOYMENT.md) for Worker secrets, Turnstile, the private queue, owner-only moderation, and the verified local acceptance boundary. Regression tests: `node --test tests/submissions.test.mjs`.
+
+## One-time setup and login restore
+
+The first `Start Bubble Studio` launch calls `/api/first-run`, selects the bundled alien cat for Codex, and registers a per-user login item. Existing state is preserved. `scripts/login-start.py` starts the local server and restores previously applied apps without opening a browser. macOS uses a user LaunchAgent; Windows uses the current user Startup folder. `Open Bubble Apps.app` / `.vbs` is a terminal-free manual restore launcher. Normal app icons cannot add CDP flags to a fully quit app.
