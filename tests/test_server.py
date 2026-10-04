@@ -1,4 +1,4 @@
-import unittest,tempfile,os,sys,json,struct,zlib,threading,urllib.request,urllib.error,base64,shutil,importlib.util
+import unittest,tempfile,os,sys,json,struct,zlib,threading,urllib.request,urllib.error,base64,shutil,importlib.util,re
 from pathlib import Path
 from unittest.mock import patch,call
 TASK_DATA=tempfile.TemporaryDirectory();os.environ['BUBBLE_STUDIO_DATA']=TASK_DATA.name
@@ -55,6 +55,13 @@ class StudioTests(unittest.TestCase):
   self.assertNotIn('找到启动图标',page)
   self.assertNotIn('找到工坊图标',page)
   self.assertIn('id="autostart"',page)
+ def test_frontend_element_references_exist_after_ui_removal(self):
+  static=Path(server.ROOT)/'app/static'
+  page=(static/'index.html').read_text()
+  script=(static/'app.js').read_text()
+  ids=set(re.findall(r'id="([^"]+)"',page))
+  references=set(re.findall(r"\$\('([^']+)'\)",script))
+  self.assertEqual(references-ids,set(),'Missing elements can abort initialization before platform handlers bind')
  def test_reveal_launcher_opens_file_manager_without_launching_apps(self):
   with patch.object(server.sys,'platform','darwin'),patch.object(server.subprocess,'run') as run:
    self.assertTrue(self.request('/api/reveal-launcher',{})['ok'])
