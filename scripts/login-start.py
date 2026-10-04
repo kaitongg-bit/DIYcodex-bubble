@@ -6,6 +6,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+import webbrowser
 
 ROOT = Path(__file__).resolve().parents[1]
 URL = 'http://127.0.0.1:19329'
@@ -18,7 +19,7 @@ def request(path, body=None):
   return json.load(response)
 
 
-def main():
+def main(open_studio=False):
  if sys.platform not in ('darwin','win32'):return
  os.environ['PATH']=os.pathsep.join(['/opt/homebrew/bin','/usr/local/bin',os.environ.get('PATH','')])
  local=ROOT/'.local';local.mkdir(exist_ok=True)
@@ -32,6 +33,9 @@ def main():
    try:request('/api/status');break
    except Exception:pass
   else:raise RuntimeError('Bubble Studio local service did not start')
+ if open_studio:
+  webbrowser.open(URL)
+  return
  # /api/launch-active only launches platforms with a saved active bubble.
  result=request('/api/launch-active',{})
  with (local/'login-start.log').open('a',encoding='utf-8') as log:
@@ -39,7 +43,7 @@ def main():
 
 
 if __name__=='__main__':
- try:main()
+ try:main(open_studio='--studio' in sys.argv[1:])
  except Exception as error:
   local=ROOT/'.local';local.mkdir(exist_ok=True)
   with (local/'login-start.log').open('a',encoding='utf-8') as log:log.write(f'error: {error}\n')

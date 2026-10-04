@@ -65,14 +65,16 @@ The macOS desktop integration has been tested on real apps. A Windows beta now i
 
 1. [Download the latest ZIP](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest) and extract it to a folder you will keep.
 2. On macOS, double-click `Start Bubble Studio.command` in Finder; on Windows, double-click `Start Bubble Studio.cmd` in File Explorer. This completes the one-time setup.
-3. On first run, the built-in **Alien cat** bubble is selected for Codex and **Restore bubbles after login** is enabled. If Codex is already running normally, fully quit it and use the studio's Restart button. The studio never force-quits an app.
+3. On first run, the built-in **Alien cat** bubble is selected for Codex and **Restore after computer startup** is enabled. If Codex is already running normally, fully quit it and use the studio's Restart button. The studio never force-quits an app.
 4. Keep the preset or open the studio later to choose another PNG, adjust it, or apply a separate bubble to Doubao. **Restore default** reverses the current app's skin.
 
 `Open Bubble Apps.app` is a small launcher inside the ZIP, not another chat app. It starts the local service and selected Codex / Doubao apps; the studio still stores and manages bubbles. On Windows, the launcher is `Open Bubble Apps.vbs`.
 
-**After login:** the local service starts in the background and tries to restore apps with applied bubbles. No terminal or web page is needed. **After fully quitting an app:** double-click `Open Bubble Apps.app` on macOS or `Open Bubble Apps.vbs` on Windows to silently restart selected apps. Click **Find launcher** in the studio to select it in your file manager; you may then pin it to the Dock or desktop. The original Codex / Doubao icon cannot add startup flags after a full quit; if you reopen an app through its original icon, fully quit it and reopen with the bubble launcher. Login startup is per-user and can be turned off in the studio.
+**After your computer starts and reaches the desktop:** the local service starts in the background and tries to restore apps with applied bubbles. No terminal or web page is needed. **After fully quitting an app:** double-click `Open Bubble Apps.app` on macOS or `Open Bubble Apps.vbs` on Windows to silently restart selected apps. Click **Find launcher** in the studio to select it in your file manager; you may then pin it to the Dock or desktop. The original Codex / Doubao icon cannot add startup flags after a full quit; if you reopen an app through its original icon, fully quit it and reopen with the bubble launcher. Computer startup is per-user and can be turned off in the studio.
 
-The getting-started guide appears on first use and can be reopened from the header. Administrator access and manual terminal commands are unnecessary. If you move the studio folder, turn login restore on again from the new location.
+**To change bubbles later:** Open `http://127.0.0.1:19329` in your browser, or double-click `Open Bubble Studio.app` on macOS or `Open Bubble Studio.vbs` on Windows. The studio also has a **Find studio icon** button. The one-time `.command` / `.cmd` setup file is not needed again.
+
+The getting-started guide appears on first use and can be reopened from the header. Administrator access and manual terminal commands are unnecessary. If you move the studio folder, turn startup restore on again from the new location.
 
 **Seeing source code after double-clicking?** Open the launcher from your system file manager — Codex's file preview only displays its contents. For runtime requirements and running from source, see [Development notes](DEVELOPMENT.en.md).
 

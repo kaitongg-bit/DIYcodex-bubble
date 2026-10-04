@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>cc.kaitongg.diycodexbubble.studio</string>
+<key>CFBundleName</key><string>Bubble Studio</string>
+<key>CFBundleDisplayName</key><string>气泡工坊</string>
+<key>CFBundleExecutable</key><string>launcher</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>LSUIElement</key><true/>
+</dict></plist>

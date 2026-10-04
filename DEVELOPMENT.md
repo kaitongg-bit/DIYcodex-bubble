@@ -36,7 +36,7 @@ PNG 两轴分别支持 2–4096 px；直接导入单张限制 2 MB，连接文�
 
 Windows 启动器是 `scripts/windows-launch.py`，由两个 `.cmd` 文件调用。服务会先查找常见安装位置，再查找发布者匹配的 Microsoft Store 包；需要时可设置 `BUBBLE_STUDIO_CODEX_EXE` / `BUBBLE_STUDIO_DOUBAO_EXE` 为实际程序路径。已运行的应用不会被强制结束；启动器只会提示先完全退出。
 
-`Start Bubble Studio.command` / `.cmd` 首次运行会调用 `/api/first-run`，自动选择外星小猫 Codex 预设并写入当前用户的登录启动项；已有状态不被覆盖。登录入口 `scripts/login-start.py` 静默启动服务后调用 `/api/launch-active`，不打开浏览器。macOS 登录项位于 `~/Library/LaunchAgents/`，Windows 位于当前用户的 Startup 文件夹；关闭页面开关只删除本项目的条目。`Open Bubble Apps.app` / `.vbs` 是无终端的手动恢复入口。
+`Start Bubble Studio.command` / `.cmd` 首次运行会调用 `/api/first-run`，自动选择外星小猫 Codex 预设并写入当前用户的登录启动项；已有状态不被覆盖。登录入口 `scripts/login-start.py` 静默启动服务后调用 `/api/launch-active`，不打开浏览器。macOS 登录项位于 `~/Library/LaunchAgents/`，Windows 位于当前用户的 Startup 文件夹；关闭页面开关只删除本项目的条目。`Open Bubble Apps.app` / `.vbs` 是无终端的手动恢复入口；`Open Bubble Studio.app` / `.vbs` 用同一个本机服务在浏览器重新打开工坊，不触发应用换肤。
 
 `Start Bubble Apps.command` 在本机启动工坊后调用 `/api/launch-active`，为每个已应用平台分别以对应 CDP 端口启动应用。后台监控继续按平台重连并应用已保存的样式。普通启动的应用无法在运行中追加调试端口，接口只提示用户手动完全退出，不强制结束进程。完全退出后通过该启动器重新打开，才能恢复连接。
 
