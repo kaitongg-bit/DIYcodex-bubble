@@ -32,7 +32,8 @@ def item_content(platform=None, python=None, root=None):
  if platform == 'win32':
   pythonw = python.with_name('pythonw.exe')
   executable = pythonw if pythonw.is_file() else python
-  command = f'"{executable}" -X utf8 "{script}"'
+  launcher = root/'DIY Codex Bubble.exe'
+  command = f'"{launcher}" --restore' if launcher.is_file() else f'"{executable}" -X utf8 "{script}"'
   if any(char in command for char in '\r\n'):raise ValueError('启动路径不能包含换行')
   # VBScript doubles quotes in string literals. Window style 0 hides a console.
   return ('Set shell = CreateObject("WScript.Shell")\r\n'
@@ -47,7 +48,7 @@ def enabled(platform=None, home=None, appdata=None):
   content = path.read_bytes()
   if (platform or sys.platform) == 'darwin':return plistlib.loads(content).get('Label') == MAC_LABEL
   script = content.decode('utf-16')
-  return 'login-start.py' in script and 'WScript.Shell' in script
+  return ('login-start.py' in script or 'DIY Codex Bubble.exe' in script) and 'WScript.Shell' in script
  except (OSError,ValueError,UnicodeError):return False
 
 

@@ -1,0 +1,20 @@
+using System;
+using System.IO;
+internal static class RuntimeBootstrapTests {
+    static int Main(string[] args) {
+        string root=args[0],cache=args[1];
+        // A new light package must have no bundled runtimes.
+        if(Directory.Exists(Path.Combine(root,"runtime")))throw new Exception("Light build bundles runtimes");
+        if(RuntimeBootstrap.Probe("cmd.exe",true)!=null)throw new Exception("Invalid Python accepted");
+        string python=RuntimeBootstrap.Find(root,cache,true),node=RuntimeBootstrap.Find(root,cache,false);
+        if(python==null||node==null)throw new Exception("Existing compatible runtimes not reused");
+        if(Directory.Exists(cache))throw new Exception("Reuse unexpectedly installed runtimes");
+        // Exercise the same verified download/extraction used on a fresh machine.
+        string isolated=cache+"-fresh";
+        string p=RuntimeBootstrap.Install(isolated,true,(m,n)=>{},()=>false);
+        string npath=RuntimeBootstrap.Install(isolated,false,(m,n)=>{},()=>false);
+        if(RuntimeBootstrap.Probe(p,true)==null||RuntimeBootstrap.Probe(npath,false)==null)throw new Exception("Downloaded runtimes failed validation");
+        Console.WriteLine("Reused compatible runtimes; downloaded and verified missing Python and Node.");
+        return 0;
+    }
+}

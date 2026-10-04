@@ -1,5 +1,11 @@
 #ifndef AppVersion
-  #define AppVersion "0.2.5"
+  #define AppVersion "0.2.6"
+#endif
+#ifndef StageName
+  #define StageName "windows-light"
+#endif
+#ifndef Variant
+  #define Variant "light"
 #endif
 [Setup]
 AppId={{C03D2187-EA90-4BBA-B824-379FA9A5FCF7}
@@ -14,8 +20,8 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir=..\..\dist
-OutputBaseFilename=DIYcodex-bubble-v{#AppVersion}-windows-x64-setup
-SetupIconFile=..\..\dist\windows-app\assets\AppIcon.ico
+OutputBaseFilename=DIYcodex-bubble-v{#AppVersion}-windows-x64-{#Variant}-setup
+SetupIconFile=..\..\dist\{#StageName}\assets\AppIcon.ico
 UninstallDisplayIcon={app}\DIY Codex Bubble.exe
 Compression=lzma2
 SolidCompression=yes
@@ -27,7 +33,7 @@ RestartApplications=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "..\..\dist\windows-app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\dist\{#StageName}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\DIY Codex Bubble"; Filename: "{app}\DIY Codex Bubble.exe"; WorkingDir: "{app}"
@@ -37,4 +43,8 @@ Name: "{autodesktop}\DIY Codex Bubble"; Filename: "{app}\DIY Codex Bubble.exe"; 
 Filename: "{app}\DIY Codex Bubble.exe"; Description: "Open DIY Codex Bubble / 打开气泡工坊"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{app}\runtime\python\python.exe"; Parameters: "-X utf8 -c ""import autostart; p=autostart.item_path(); p.unlink() if p.is_file() and str(autostart.ROOT) in p.read_bytes().decode('utf-16') else None"""; Flags: runhidden; RunOnceId: "RemoveOwnedStartup"
+Filename: "{app}\DIY Codex Bubble.exe"; Parameters: "--uninstall-startup"; Flags: runhidden; RunOnceId: "RemoveOwnedStartup"
+
+[InstallDelete]
+; Remove obsolete bundled runtimes when upgrading to the online build.
+Type: filesandordirs; Name: "{app}\runtime"

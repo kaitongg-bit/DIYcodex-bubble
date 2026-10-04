@@ -5,7 +5,7 @@ on:
       version:
         description: Release version without v
         required: true
-        default: '0.2.4'
+        default: '0.2.6'
 permissions:
   contents: read
 jobs:
@@ -19,6 +19,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Install build dependency
         run: python -m pip install Pillow==11.3.0
       - name: Tests
@@ -29,7 +32,16 @@ jobs:
       - name: Build application and portable ZIP
         env:
           BUILD_VERSION: ${{ inputs.version }}
-        run: python scripts/build-windows-app.py --version $env:BUILD_VERSION
+        run: |
+          python scripts/build-windows-app.py --version $env:BUILD_VERSION
+          python scripts/build-windows-app.py --version $env:BUILD_VERSION --light
+      - name: Verify runtime reuse and fresh downloads
+        run: |
+          $csc = "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          & $csc /nologo /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll /out:dist/runtime-tests.exe packaging/windows/RuntimeBootstrap.cs packaging/windows/RuntimeBootstrapTests.cs
+          if ($LASTEXITCODE -ne 0) { throw 'Bootstrap test compilation failed' }
+          & dist/runtime-tests.exe (Resolve-Path dist/windows-light).Path (Join-Path $env:RUNNER_TEMP 'bubble-bootstrap-test')
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime resolution tests failed' }
       - name: Smoke test bundled runtimes
         env:
           BUBBLE_STUDIO_DATA: ${{ runner.temp }}/bubble-runtime-test
@@ -47,29 +59,35 @@ jobs:
             choco install innosetup --yes --no-progress
             if ($LASTEXITCODE -ne 0) { throw 'Inno Setup install failed' }
           }
-          & $iscc "/DAppVersion=$env:BUILD_VERSION" packaging/windows/installer.iss
-          if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+          & $iscc "/DAppVersion=$env:BUILD_VERSION" /DStageName=windows-light /DVariant=light packaging/windows/installer.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Light installer compilation failed' }
+          & $iscc "/DAppVersion=$env:BUILD_VERSION" /DStageName=windows-app /DVariant=offline packaging/windows/installer.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Offline installer compilation failed' }
       - name: Verify installation and desktop launcher
         run: |
-          $setup = (Get-ChildItem dist/*-windows-x64-setup.exe).FullName
           $install = Join-Path $env:RUNNER_TEMP 'Bubble Installed'
-          $process = Start-Process $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=`"$install`"" -Wait -PassThru
-          if ($process.ExitCode -ne 0) { throw 'Installation failed' }
-          $launcher = Join-Path $install 'DIY Codex Bubble.exe'
-          if (!(Test-Path $launcher)) { throw 'Installed launcher missing' }
-          $desktop = [Environment]::GetFolderPath('Desktop')
-          if (!(Test-Path (Join-Path $desktop 'DIY Codex Bubble.lnk'))) { throw 'Desktop shortcut missing' }
-          $process = Start-Process $launcher -PassThru
-          if (!$process.WaitForExit(60000)) { $process.Kill(); throw 'Launcher timed out' }
-          if ($process.ExitCode -ne 0) { throw 'Launcher failed' }
-          $status = Invoke-RestMethod http://127.0.0.1:19329/api/library
-          if ($status.items.Count -lt 3) { throw 'Built-in presets missing' }
-          Write-Output "Installed EXE opened the workshop; $($status.items.Count) presets loaded"
-          $state = Join-Path $env:LOCALAPPDATA 'DIY Codex Bubble\Data\state.json'
-          if (!(Test-Path $state)) { throw 'State was not saved outside the install directory' }
-          $startup = Join-Path ([Environment]::GetFolderPath('Startup')) 'DIY Codex Bubble Restore.vbs'
-          if (!(Test-Path $startup)) { throw 'Automatic restore entry missing' }
-          Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -like "$install\runtime\python\*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+          # Install offline first, then upgrade to light; runtime files must be removed.
+          foreach ($variant in @('offline','light')) {
+            $setup = (Get-ChildItem "dist/*-windows-x64-$variant-setup.exe").FullName
+            $process = Start-Process $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=`"$install`"" -Wait -PassThru
+            if ($process.ExitCode -ne 0) { throw 'Installation failed' }
+            if ($variant -eq 'light' -and (Test-Path (Join-Path $install 'runtime'))) { throw 'Upgrade retained bundled runtimes' }
+            $launcher = Join-Path $install 'DIY Codex Bubble.exe'
+            $desktop = [Environment]::GetFolderPath('Desktop')
+            if (!(Test-Path (Join-Path $desktop 'DIY Codex Bubble.lnk'))) { throw 'Desktop shortcut missing' }
+            $process = Start-Process $launcher -PassThru
+            if (!$process.WaitForExit(60000)) { $process.Kill(); throw 'Launcher timed out' }
+            if ($process.ExitCode -ne 0) { throw 'Launcher failed' }
+            $status = Invoke-RestMethod http://127.0.0.1:19329/api/library
+            if ($status.items.Count -lt 3) { throw 'Built-in presets missing' }
+            Write-Output "$variant EXE opened the workshop; $($status.items.Count) presets loaded"
+            $state = Join-Path $env:LOCALAPPDATA 'DIY Codex Bubble\Data\state.json'
+            if (!(Test-Path $state)) { throw 'External settings missing' }
+            $startup = Join-Path ([Environment]::GetFolderPath('Startup')) 'DIY Codex Bubble Restore.vbs'
+            if (!(Test-Path $startup)) { throw 'Automatic restore entry missing' }
+            if (!(Get-Content $startup -Raw).Contains('DIY Codex Bubble.exe')) { throw 'Startup bypasses runtime bootstrap' }
+            Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like "*$install*app*server.py*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+          }
           $process = Start-Process (Join-Path $install 'unins000.exe') -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw 'Uninstall failed' }
           if (Test-Path $startup) { throw 'Owned startup entry was not removed' }
