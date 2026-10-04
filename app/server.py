@@ -35,7 +35,14 @@ def clean_trash(s):
  return s
 def choose_folder(language="zh"):
  if sys.platform=='win32':
-  from tkinter import Tk,filedialog
+  try:from tkinter import Tk,filedialog
+  except ImportError:
+   prompt='Choose your bubble asset folder' if language.startswith('en') else '选择气泡素材文件夹'
+   script="[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new(); Add-Type -AssemblyName System.Windows.Forms; $dialog = New-Object System.Windows.Forms.FolderBrowserDialog; $dialog.Description = '"+prompt+"'; try { if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) { ConvertTo-Json -Compress -InputObject $dialog.SelectedPath } else { ConvertTo-Json -Compress -InputObject '' } } finally { $dialog.Dispose() }"
+   encoded=base64.b64encode(script.encode('utf-16le')).decode('ascii')
+   result=subprocess.run(['powershell.exe','-NoProfile','-STA','-EncodedCommand',encoded],capture_output=True,text=True,encoding='utf-8')
+   if result.returncode:raise ValueError('无法打开文件夹选择窗口，请重试')
+   return json.loads(result.stdout.strip().lstrip('\ufeff'))
   root=Tk();root.withdraw();root.attributes('-topmost',True)
   try:return filedialog.askdirectory(parent=root,title='Choose your bubble asset folder' if language.startswith('en') else '选择气泡素材文件夹')
   finally:root.destroy()

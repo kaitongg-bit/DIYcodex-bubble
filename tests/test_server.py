@@ -188,6 +188,14 @@ class StudioTests(unittest.TestCase):
    self.request('/api/choose-folder',{})
   root.withdraw.assert_called_once();root.destroy.assert_called_once()
   self.assertEqual(len(self.request('/api/library')['items']),2)
+ def test_windows_embedded_runtime_folder_picker_without_tk(self):
+  from subprocess import CompletedProcess
+  with patch.object(server.sys,'platform','win32'),patch.dict(sys.modules,{'tkinter':None}),patch.object(server.subprocess,'run',return_value=CompletedProcess([],0,json.dumps(str(self.folder)))) as run:
+   self.request('/api/choose-folder',{})
+  self.assertEqual(len(self.request('/api/library')['items']),2)
+  self.assertEqual(run.call_args.args[0][:4],['powershell.exe','-NoProfile','-STA','-EncodedCommand'])
+  with patch.object(server.sys,'platform','win32'),patch.dict(sys.modules,{'tkinter':None}),patch.object(server.subprocess,'run',return_value=CompletedProcess([],0,'""')):
+   self.assertEqual(server.choose_folder(),'')
  def test_open_trash_and_external_removal(self):
   a=self.connect()[0];self.request('/api/delete',{'id':a['id']})
   entry=server.state()['trash'][0]
