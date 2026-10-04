@@ -21,8 +21,11 @@ def request(path, body=None):
 
 def main(open_studio=False):
  if sys.platform not in ('darwin','win32'):return
+ if sys.platform=='win32' and (ROOT/'runtime/node/node.exe').is_file():
+  os.environ.setdefault('BUBBLE_STUDIO_DATA',str(Path(os.environ['LOCALAPPDATA'])/'DIY Codex Bubble'/'Data'))
+  os.environ['BUBBLE_STUDIO_NODE']=str(ROOT/'runtime/node/node.exe')
  os.environ['PATH']=os.pathsep.join(['/opt/homebrew/bin','/usr/local/bin',os.environ.get('PATH','')])
- local=ROOT/'.local';local.mkdir(exist_ok=True)
+ local=Path(os.environ.get('BUBBLE_STUDIO_DATA',str(ROOT/'.local')));local.mkdir(parents=True,exist_ok=True)
  try:request('/api/status')
  except Exception:
   with (local/'studio.log').open('a',encoding='utf-8') as log:
@@ -59,5 +62,7 @@ def main(open_studio=False):
 if __name__=='__main__':
  try:main(open_studio='--studio' in sys.argv[1:])
  except Exception as error:
-  local=ROOT/'.local';local.mkdir(exist_ok=True)
+  local=Path(os.environ.get('BUBBLE_STUDIO_DATA',str(ROOT/'.local')));local.mkdir(parents=True,exist_ok=True)
   with (local/'login-start.log').open('a',encoding='utf-8') as log:log.write(f'error: {error}\n')
+  print(str(error),file=sys.stderr)
+  sys.exit(1)

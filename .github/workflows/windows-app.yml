@@ -1,0 +1,53 @@
+name: Windows application
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without v
+        required: true
+        default: '0.2.4'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install build dependency
+        run: python -m pip install Pillow==11.3.0
+      - name: Tests
+        run: |
+          python -c "import sys,unittest; sys.path.insert(0,'tests'); import test_server; names=[n for n in unittest.defaultTestLoader.getTestCaseNames(test_server.StudioTests) if n.startswith('test_windows_') or n in ('test_platform_isolation_switch_restore_and_delete','test_real_folder_and_independent_presets','test_frontend_element_references_exist_after_ui_removal','test_login_autostart_registration_is_per_user_and_reversible')]; result=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(test_server.StudioTests(n) for n in names)); sys.exit(not result.wasSuccessful())"
+      - name: Build application and portable ZIP
+        env:
+          BUILD_VERSION: ${{ inputs.version }}
+        run: python scripts/build-windows-app.py --version $env:BUILD_VERSION
+      - name: Smoke test bundled runtimes
+        env:
+          BUBBLE_STUDIO_DATA: ${{ runner.temp }}/bubble-runtime-test
+        run: |
+          & 'dist/windows-app/runtime/python/python.exe' -c "import sys, server, autostart, ssl; print(sys.version)"
+          if ($LASTEXITCODE -ne 0) { throw 'Bundled Python failed' }
+          & 'dist/windows-app/runtime/node/node.exe' --check dist/windows-app/app/bridge.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Bundled Node failed' }
+      - name: Build installer
+        env:
+          BUILD_VERSION: ${{ inputs.version }}
+        run: |
+          $iscc = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (!(Test-Path $iscc)) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { throw 'Inno Setup install failed' }
+          }
+          & $iscc "/DAppVersion=$env:BUILD_VERSION" packaging/windows/installer.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-application
+          path: |
+            dist/*-windows-x64-setup.exe
+            dist/*-windows-x64-portable.zip
+          if-no-files-found: error
