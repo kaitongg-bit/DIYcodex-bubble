@@ -15,7 +15,7 @@ internal static class Launcher {
             string data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DIY Codex Bubble", "Data");
             Directory.CreateDirectory(data);
             bool restore = Array.IndexOf(args, "--restore") >= 0;
-            var info = new ProcessStartInfo(python, "\"" + script + "\"" + (restore ? "" : " --studio"));
+            var info = new ProcessStartInfo(python, "-X utf8 \"" + script + "\"" + (restore ? "" : " --studio"));
             info.WorkingDirectory = root;
             info.UseShellExecute = false;
             info.CreateNoWindow = true;

@@ -32,7 +32,7 @@ def item_content(platform=None, python=None, root=None):
  if platform == 'win32':
   pythonw = python.with_name('pythonw.exe')
   executable = pythonw if pythonw.is_file() else python
-  command = f'"{executable}" "{script}"'
+  command = f'"{executable}" -X utf8 "{script}"'
   if any(char in command for char in '\r\n'):raise ValueError('启动路径不能包含换行')
   # VBScript doubles quotes in string literals. Window style 0 hides a console.
   return ('Set shell = CreateObject("WScript.Shell")\r\n'

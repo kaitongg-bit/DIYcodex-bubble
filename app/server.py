@@ -16,7 +16,7 @@ STATUSES={key:{'connected':False,'matched':0} for key in PLATFORMS}
 PORT=19329
 NAMES={'cat-big-paw-scruffy':'毛茸茸猫咪 · 大爪子','cat-big-paw-doodle':'涂鸦猫咪 · 大爪子','chef-cat-wok-doodle':'猫咪主厨','onigiri-cat-doodle':'饭团猫咪','guangdong-stool':'广东小板凳','rippled-glass-nine-slice':'水波玻璃','mondrian-painting':'蒙德里安画框','mondrian':'蒙德里安','colorful-happy-doodle':'彩色快乐涂鸦','happy-stickman':'快乐小人','love-square-charcoal':'LOVE 方形炭笔','love-charcoal':'LOVE 炭笔'}
 def state():
- try:s={**json.loads(json.dumps(DEFAULT)),**json.loads(STATE.read_text())}
+ try:s={**json.loads(json.dumps(DEFAULT)),**json.loads(STATE.read_text(encoding='utf-8'))}
  except (OSError,ValueError):s=json.loads(json.dumps(DEFAULT))
  if s.get('platform') not in PLATFORMS:s['platform']='codex'
  if 'platforms' not in s:
@@ -27,7 +27,7 @@ def state():
 def save(s):
  with LOCK:
   if 'platforms' in s:s['platforms'][s.get('platform','codex')]['active']=s.get('active')
-  tmp=DATA/'state.tmp';tmp.write_text(json.dumps(s,ensure_ascii=False,indent=2));tmp.replace(STATE)
+  tmp=DATA/'state.tmp';tmp.write_text(json.dumps(s,ensure_ascii=False,indent=2),encoding='utf-8');tmp.replace(STATE)
 def status_for(s):return STATUSES[s['platform']]
 def clean_trash(s):
  remaining=[entry for entry in s.get('trash',[]) if Path(entry['stored']).is_file()]
@@ -53,7 +53,7 @@ def png_info(path):
  return w,h,len(b)
 def asset_id(path):return hashlib.sha256(str(path.resolve()).encode()).hexdigest()[:20]
 def bundled_presets():
- manifest=json.loads((ROOT/'presets/manifest.json').read_text())
+ manifest=json.loads((ROOT/'presets/manifest.json').read_text(encoding='utf-8'))
  result=[]
  for entry in manifest['items']:
   path=ROOT/'presets'/entry['filename']
@@ -124,7 +124,7 @@ def node_path():
  raise ValueError('请安装 Node.js 22 或以上版本')
 def bridge(action,platform="codex"):
  try:
-  result=subprocess.run([node_path(),str(ROOT/'app/bridge.mjs'),str(STATE),action,platform],capture_output=True,text=True,timeout=12)
+  result=subprocess.run([node_path(),str(ROOT/'app/bridge.mjs'),str(STATE),action,platform],capture_output=True,text=True,encoding='utf-8',timeout=12)
   return json.loads(result.stdout) if result.returncode==0 else {'connected':False,'matched':0,'message':'应用连接失败'}
  except Exception:return {'connected':False,'matched':0,'message':'应用连接暂不可用'}
 def review_cli(*args):

@@ -57,8 +57,8 @@ class StudioTests(unittest.TestCase):
   self.assertIn('id="autostart"',page)
  def test_frontend_element_references_exist_after_ui_removal(self):
   static=Path(server.ROOT)/'app/static'
-  page=(static/'index.html').read_text()
-  script=(static/'app.js').read_text()
+  page=(static/'index.html').read_text(encoding='utf-8')
+  script=(static/'app.js').read_text(encoding='utf-8')
   ids=set(re.findall(r'id="([^"]+)"',page))
   references=set(re.findall(r"\$\('([^']+)'\)",script))
   self.assertEqual(references-ids,set(),'Missing elements can abort initialization before platform handlers bind')

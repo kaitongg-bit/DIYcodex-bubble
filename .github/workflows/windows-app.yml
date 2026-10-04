@@ -11,6 +11,9 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      PYTHONUTF8: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,6 +24,7 @@ jobs:
       - name: Tests
         run: |
           python -c "import sys,unittest; sys.path.insert(0,'tests'); import test_server; names=[n for n in unittest.defaultTestLoader.getTestCaseNames(test_server.StudioTests) if n.startswith('test_windows_') or n in ('test_platform_isolation_switch_restore_and_delete','test_real_folder_and_independent_presets','test_frontend_element_references_exist_after_ui_removal','test_login_autostart_registration_is_per_user_and_reversible')]; result=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(test_server.StudioTests(n) for n in names)); sys.exit(not result.wasSuccessful())"
+          python -m unittest discover -s tests -p test_windows_package.py -q
       - name: Build application and portable ZIP
         env:
           BUILD_VERSION: ${{ inputs.version }}
@@ -44,6 +48,22 @@ jobs:
           }
           & $iscc "/DAppVersion=$env:BUILD_VERSION" packaging/windows/installer.iss
           if ($LASTEXITCODE -ne 0) { throw 'Installer compilation failed' }
+      - name: Verify installation and desktop launcher
+        run: |
+          $setup = (Get-ChildItem dist/*-windows-x64-setup.exe).FullName
+          $install = Join-Path $env:RUNNER_TEMP 'Bubble Installed'
+          $process = Start-Process $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=`"$install`"" -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw 'Installation failed' }
+          $launcher = Join-Path $install 'DIY Codex Bubble.exe'
+          if (!(Test-Path $launcher)) { throw 'Installed launcher missing' }
+          $desktop = [Environment]::GetFolderPath('Desktop')
+          if (!(Test-Path (Join-Path $desktop 'DIY Codex Bubble.lnk'))) { throw 'Desktop shortcut missing' }
+          $process = Start-Process $launcher -PassThru
+          if (!$process.WaitForExit(60000)) { $process.Kill(); throw 'Launcher timed out' }
+          if ($process.ExitCode -ne 0) { throw 'Launcher failed' }
+          $status = Invoke-RestMethod http://127.0.0.1:19329/api/library
+          if ($status.items.Count -lt 3) { throw 'Built-in presets missing' }
+          Write-Output "Installed EXE opened the workshop; $($status.items.Count) presets loaded"
       - uses: actions/upload-artifact@v4
         with:
           name: windows-application

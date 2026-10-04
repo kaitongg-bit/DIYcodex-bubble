@@ -30,7 +30,7 @@ def main(open_studio=False):
  except Exception:
   with (local/'studio.log').open('a',encoding='utf-8') as log:
    kwargs={'start_new_session':True} if sys.platform=='darwin' else {'creationflags':subprocess.CREATE_NEW_PROCESS_GROUP|subprocess.DETACHED_PROCESS}
-   subprocess.Popen([sys.executable,str(ROOT/'app/server.py')],cwd=ROOT,stdin=subprocess.DEVNULL,stdout=log,stderr=log,**kwargs)
+   subprocess.Popen([sys.executable,'-X','utf8',str(ROOT/'app/server.py')],cwd=ROOT,stdin=subprocess.DEVNULL,stdout=log,stderr=log,**kwargs)
   for _ in range(50):
    time.sleep(.2)
    try:request('/api/status');break
