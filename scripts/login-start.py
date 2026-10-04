@@ -34,12 +34,22 @@ def main(open_studio=False):
    except Exception:pass
   else:raise RuntimeError('Bubble Studio local service did not start')
  if open_studio:
-  webbrowser.open(URL)
+  if sys.platform=='darwin':
+   subprocess.run(['/usr/bin/open',URL],check=True)
+  else:
+   webbrowser.open(URL)
   return
  # /api/launch-active only launches platforms with a saved active bubble.
  result=request('/api/launch-active',{})
  with (local/'login-start.log').open('a',encoding='utf-8') as log:
   log.write(json.dumps(result,ensure_ascii=False)+'\n')
+ # A normal app launch cannot accept the debugging port. Surface that state in
+ # the studio instead of silently exiting with no visible feedback.
+ if any(item.get('state')=='quit-required' for item in result.get('results',[])):
+  if sys.platform=='darwin':
+   subprocess.run(['/usr/bin/open',URL],check=True)
+  else:
+   webbrowser.open(URL)
 
 
 if __name__=='__main__':

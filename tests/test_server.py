@@ -75,9 +75,13 @@ class StudioTests(unittest.TestCase):
   script=Path(__file__).resolve().parents[1]/'scripts/login-start.py'
   spec=importlib.util.spec_from_file_location('bubble_login_start',script)
   module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-  with patch.object(module,'request',return_value={}) as request,patch.object(module.webbrowser,'open') as browser:
+  with patch.object(module,'request',return_value={}) as request,patch.object(module.subprocess,'run') as run,patch.object(module.webbrowser,'open') as browser:
    module.main(open_studio=True)
   request.assert_called_once_with('/api/status')
+  run.assert_called_once_with(['/usr/bin/open',module.URL],check=True)
+  browser.assert_not_called()
+  with patch.object(module.sys,'platform','win32'),patch.object(module,'request',return_value={}),patch.object(module.webbrowser,'open') as browser:
+   module.main(open_studio=True)
   browser.assert_called_once_with(module.URL)
  def test_login_autostart_registration_is_per_user_and_reversible(self):
   with tempfile.TemporaryDirectory() as home:
