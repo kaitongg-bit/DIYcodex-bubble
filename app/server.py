@@ -304,11 +304,11 @@ class Handler(BaseHTTPRequestHandler):
      kind=body.get('kind','apps')
      if kind not in ('apps','studio'):raise ValueError('启动图标类型无效')
      if sys.platform=='darwin':
-      launcher=ROOT/('Open Bubble Studio.app' if kind=='studio' else 'Open Bubble Apps.command')
+      launcher=ROOT/'scripts'/'launchers'/('Open Bubble Studio.app' if kind=='studio' else 'Open Bubble Apps.command')
       if not (launcher.is_dir() if launcher.suffix=='.app' else launcher.is_file()):raise ValueError('找不到气泡启动图标')
       subprocess.run(['/usr/bin/open','-R',str(launcher)],check=True,capture_output=True)
      elif sys.platform=='win32':
-      launcher=ROOT/('Open Bubble Studio.vbs' if kind=='studio' else 'Open Bubble Apps.vbs')
+      launcher=ROOT/'scripts'/'launchers'/('Open Bubble Studio.vbs' if kind=='studio' else 'Open Bubble Apps.vbs')
       if not launcher.is_file():raise ValueError('找不到气泡启动图标')
       subprocess.Popen(['explorer.exe',f'/select,{launcher}'])
      else:raise ValueError('目前仅支持 macOS 和 Windows')

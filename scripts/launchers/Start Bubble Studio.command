@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -u
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
-cd "${0:A:h}"
+cd "${0:A:h}/../.."
 if ! /usr/bin/curl -fsS --max-time 1 http://127.0.0.1:19329/api/library >/dev/null 2>&1; then
   mkdir -p .local
   PYTHON_BIN="$(command -v python3 || true)"

@@ -6,7 +6,7 @@ Technical information for contributors. Ordinary users should read [README](READ
 
 ## Running from source
 
-macOS is tested; Windows desktop injection is beta. Python 3.9+ and Node.js 22+ are required; no npm install or frontend build is required. On Windows, double-click `Start Bubble Studio.cmd` or `Start Bubble Apps.cmd`, or run `py -3 app/server.py`.
+macOS is tested; Windows desktop injection is beta. Python 3.9+ and Node.js 22+ are required; no npm install or frontend build is required. On Windows, double-click `scripts/launchers/Start Bubble Studio.cmd` or `scripts/launchers/Start Bubble Apps.cmd`, or run `py -3 app/server.py`.
 
 ```sh
 git clone https://github.com/kaitongg-bit/DIYcodex-bubble.git
@@ -36,7 +36,7 @@ Only macOS desktop builds are verified on real devices so far. Windows service a
 
 The Windows launcher is `scripts/windows-launch.py`, invoked by the two `.cmd` files. The server searches common installation paths and then Microsoft Store packages from expected publishers. `BUBBLE_STUDIO_CODEX_EXE` and `BUBBLE_STUDIO_DOUBAO_EXE` can point to the actual executable. An already running app is never force-quit; users are asked to exit it completely first.
 
-`Start Bubble Apps.command` starts the local studio and calls `/api/launch-active`, launching each configured app with its own CDP port. The per-platform monitor then reconnects and reapplies the saved style. A normally launched app cannot gain a debugging port after startup, so the endpoint asks the user to quit it manually and never terminates the process itself.
+`scripts/launchers/Start Bubble Apps.command` starts the local studio and calls `/api/launch-active`, launching each configured app with its own CDP port. The per-platform monitor then reconnects and reapplies the saved style. A normally launched app cannot gain a debugging port after startup, so the endpoint asks the user to quit it manually and never terminates the process itself.
 
 ## Verification
 
@@ -72,7 +72,7 @@ See [community/DEPLOYMENT.md](community/DEPLOYMENT.md) for Worker secrets, Turns
 
 ## One-time setup and login restore
 
-The first `Start Bubble Studio` launch calls `/api/first-run`, selects the bundled alien cat for Codex, and registers a per-user login item. Existing state is preserved. `scripts/login-start.py` starts the local server and restores previously applied apps without opening a browser. macOS uses a user LaunchAgent; Windows uses the current user Startup folder. `Open Bubble Apps.app` / `.vbs` is a terminal-free manual restore launcher. `Open Bubble Studio.app` / `.vbs` opens the studio in the browser without reapplying or launching target apps. Normal app icons cannot add CDP flags to a fully quit app.
+The first `Start Bubble Studio` launch calls `/api/first-run`, selects the bundled alien cat for Codex, and registers a per-user login item. Existing state is preserved. `scripts/login-start.py` starts the local server and restores previously applied apps without opening a browser. macOS uses a user LaunchAgent; Windows uses the current user Startup folder. `scripts/launchers/Open Bubble Apps.app` / `.vbs` is a terminal-free manual restore launcher. `scripts/launchers/Open Bubble Studio.app` / `.vbs` opens the studio in the browser without reapplying or launching target apps. Normal app icons cannot add CDP flags to a fully quit app.
 
 
 ## Windows runtime bootstrap

@@ -6,7 +6,7 @@
 
 ## 运行源码
 
-macOS 已实测；Windows 桌面注入为测试版。需要 Python 3.9+、Node.js 22+；无需 npm 安装或前端构建。Windows 可双击 `Start Bubble Studio.cmd` 或 `Start Bubble Apps.cmd`；也可运行 `py -3 app/server.py`。
+macOS 已实测；Windows 桌面注入为测试版。需要 Python 3.9+、Node.js 22+；无需 npm 安装或前端构建。Windows 可双击 `scripts/launchers/Start Bubble Studio.cmd` 或 `scripts/launchers/Start Bubble Apps.cmd`；也可运行 `py -3 app/server.py`。
 
 ```sh
 git clone https://github.com/kaitongg-bit/DIYcodex-bubble.git
@@ -38,7 +38,7 @@ Windows 启动器是 `scripts/windows-launch.py`，由两个 `.cmd` 文件调用
 
 首次启动会调用 `/api/first-run`，自动选择外星小猫 Codex 预设并写入当前用户的登录启动项；已有状态不被覆盖。登录入口 `scripts/login-start.py` 静默启动服务后调用 `/api/launch-active`，不打开浏览器。macOS 登录项位于 `~/Library/LaunchAgents/`，Windows 位于当前用户的 Startup 文件夹；关闭页面开关只删除本项目的条目。macOS 发布物以 DMG 中的 `DIY Codex Bubble.app` 为用户入口；Windows 发布物以带图标的 `DIY Codex Bubble.exe` 为入口。旧的 `.command`、`.app`、`.vbs` 文件只保留给开发和故障排查，不应作为普通用户文档中的主要路径。
 
-`Start Bubble Apps.command` 在本机启动工坊后调用 `/api/launch-active`，为每个已应用平台分别以对应 CDP 端口启动应用。后台监控继续按平台重连并应用已保存的样式。普通启动的应用无法在运行中追加调试端口，接口只提示用户手动完全退出，不强制结束进程。完全退出后通过该启动器重新打开，才能恢复连接。
+`scripts/launchers/Start Bubble Apps.command` 在本机启动工坊后调用 `/api/launch-active`，为每个已应用平台分别以对应 CDP 端口启动应用。后台监控继续按平台重连并应用已保存的样式。普通启动的应用无法在运行中追加调试端口，接口只提示用户手动完全退出，不强制结束进程。完全退出后通过该启动器重新打开，才能恢复连接。
 
 ## 验证
 

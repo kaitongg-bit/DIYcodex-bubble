@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -u
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
-cd "${0:A:h}"
+cd "${0:A:h}/../.."
 PYTHON_BIN="$(command -v python3 || true)"
 if [[ -z "$PYTHON_BIN" ]]; then
   print '未找到 Python 3，请先安装 Python 3.9 或以上版本。'
