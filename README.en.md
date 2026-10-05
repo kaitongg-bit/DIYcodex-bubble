@@ -12,8 +12,6 @@
 <p align="center">
   <a href="https://github.com/kaitongg-bit/DIYcodex-bubble"><img src="https://img.shields.io/github/stars/kaitongg-bit/DIYcodex-bubble" alt="Stars"></a>
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20beta-lightgrey" alt="macOS and Windows beta">
-  <img src="https://img.shields.io/badge/Python-3.9%2B-blue" alt="Python 3.9+">
-  <img src="https://img.shields.io/badge/Node.js-22%2B-blue" alt="Node.js 22+">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT">
 </p>
 
@@ -64,20 +62,35 @@ Use **EN / 中文** in the top-right corner to switch languages. Bubble settings
 
 ## Quick start
 
-The macOS desktop integration has been tested on real apps. A Windows beta now includes the local studio, file operations, and app launch path; applying bubbles to Windows desktop apps still needs real-device testing.
+Download from the [latest release](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest). You do not need to fork the repository, download source code, or run terminal commands. Chrome is not required; the studio opens in your default browser.
 
-1. On macOS, download the latest [DMG](https://github.com/kaitongg-bit/DIYcodex-bubble/releases/latest), drag `DIY Codex Bubble.app` to Applications, and open it. If macOS blocks the first launch, use System Settings → Privacy & Security → Open Anyway once.
-2. On Windows 10/11 (x64), download `windows-x64-light-setup.exe` and install it, then open **DIY Codex Bubble** from the desktop or Start menu. Administrator rights are not required. Compatible Python (3.10+, below 4) and Node.js (22+) installations are reused; missing runtimes are downloaded with progress into the workshop’s own directory, without changing system settings. For offline use, choose `windows-x64-offline-setup.exe`. Portable builds also come as `light-portable.zip` and `offline-portable.zip`; extract fully and open `DIY Codex Bubble.exe`.
-3. On first run, the built-in **Alien cat** bubble is selected for Codex and **Restore after computer startup** is enabled. If Codex is already running normally, fully quit it and use the studio's Restart button. The studio never force-quits an app.
-4. Keep the preset or open the studio later to choose another PNG, adjust it, or apply a separate bubble to Doubao. **Restore default** reverses the current app's skin.
+### Which download?
+
+| Platform / preference | File | How to open |
+| --- | --- | --- |
+| macOS | `.dmg` | Open the DMG, drag **DIY Codex Bubble.app** into Applications, then open it |
+| Windows 10/11 x64, recommended | `windows-x64-light-setup.exe` | Install, then open **DIY Codex Bubble** from the desktop or Start menu |
+| Windows, runtimes included for offline setup | `windows-x64-offline-setup.exe` | Same installation flow, with Python and Node.js bundled |
+| Windows, portable | `windows-x64-light-portable.zip` / `windows-x64-offline-portable.zip` | Extract fully to a permanent folder and open **DIY Codex Bubble.exe** |
+
+GitHub's **Source code (zip / tar.gz)** downloads are development source, not portable builds. For your first installation, choose the DMG or EXE installer. Keep the entire portable folder together; do not move only its EXE.
+
+### First launch
+
+1. If macOS blocks the first launch, use System Settings → Privacy & Security → Open Anyway. The Windows installer is unsigned and may trigger SmartScreen; administrator rights are not required.
+2. Compatible Python (3.10+, below 4) and Node.js (22+) are reused. The Windows light edition downloads missing runtimes with progress into its own directory without changing system settings.
+3. First launch applies **Alien cat** to Codex and enables **Restore after computer startup**. If Codex is already running normally, save your work, fully quit it, then use the studio's Restart button. The studio does not force-quit apps.
+4. Keep the preset, select another image, adjust stretch guides, or switch to Doubao and apply a separate bubble. **Restore default** reverses the selected app's skin.
+
+macOS is verified. Users have successfully applied bubbles to Codex / Doubao on Windows; Windows remains beta, and compatibility may vary by app version and installation method.
 
 The default small installer is around **4 MB** and reuses compatible runtimes. Close the setup progress window to cancel a download; reopen to retry. The full offline build downloads at around 33 MB and uses around 107–111 MB after installation. On computers without runtimes, the small build will also use additional disk space after first setup; most savings come from reusing existing installations. Images, settings, and downloaded runtimes are stored separately, and upgrades preserve settings.
 
-**After your computer starts and reaches the desktop:** the local service starts in the background and tries to restore apps with applied bubbles. No terminal or web page is needed. **After fully quitting an app:** open `DIY Codex Bubble.app` on macOS and use the Restart button in the studio. The original Codex / Doubao icon cannot add startup flags after a full quit; if you reopen an app through its original icon, fully quit it and restart it from the studio. Computer startup is per-user and can be turned off in the studio.
+**After your computer starts and reaches the desktop:** the local service starts in the background and tries to restore apps with applied bubbles. No terminal or web page is needed. **After fully quitting an app:** open **DIY Codex Bubble** and use the Restart button in the studio. The original Codex / Doubao icon cannot add startup flags after a full quit; if you reopen an app through its original icon, fully quit it and restart it from the studio. Computer startup is per-user and can be turned off in the studio.
 
-**To change bubbles later:** open `DIY Codex Bubble.app` on macOS, or open `http://127.0.0.1:19329` in your browser. The one-time setup launcher is not needed again.
+**To change bubbles later:** open **DIY Codex Bubble**, or open `http://127.0.0.1:19329` in your browser. The one-time setup launcher is not needed again.
 
-**Seeing source code after double-clicking?** Open the launcher from your system file manager — Codex's file preview only displays its contents. For runtime requirements and running from source, see [Development notes](DEVELOPMENT.en.md).
+For running from source, see [Development notes](DEVELOPMENT.en.md).
 
 The Windows beta checks common folders on local drives, running apps, registry entries, shortcuts, and Microsoft Store packages from expected publishers. If an app is not found, click “Choose application location” in the workshop and select the installed `Doubao.exe`, `Codex.exe`, or `ChatGPT.exe`. Your choice is saved. Do not select the downloaded `OnlineInstaller`. Some Store app builds may ignore the debugging flags. If the studio remains disconnected, report the Windows and app versions in [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues), along with relevant errors from `.local/app-start.log` after removing private paths. Do not upload chat content.
 
@@ -86,6 +99,14 @@ The installed Windows app stores settings and logs in `%LOCALAPPDATA%\DIY Codex 
 ## Usage
 
 Click **Check for updates** in the studio header, then **Download and update**. Installed Mac apps and Windows installer editions verify the package, replace the app and reopen the studio, keeping bubbles, settings and favorites. Source checkouts and portable editions link to downloads.
+
+### Updates and connection troubleshooting
+
+- **Do not uninstall before updating.** Install the new Windows release into the same location to replace the old program. Apps settings lists one installation; bubbles, settings, and favorites are retained. Previously downloaded installers are not deleted automatically. On macOS, replace the studio app in Applications.
+- **Windows update says “Access denied” or cannot stop the background service?** Cancel installation and exit the old studio service before retrying. Closing a browser tab does not stop the service. If it cannot be stopped, restart Windows and run the new installer first.
+- **Doubao still appears to be running after you quit it?** Check for `Doubao.exe` in Task Manager's Details tab. Save your work before ending it, then restart Doubao from the studio. Restart the computer if the process cannot be ended.
+- **Gallery import says `127.0.0.1` refused the connection?** Open **DIY Codex Bubble** on the same computer, wait for the local studio page, then click the gallery import button again. The public gallery cannot start a local service that is not running.
+- **Portable or source updates?** Download the new release. These editions do not currently support automatic program replacement from the studio.
 
 Open the installed studio, then click **Import into my studio** in the online gallery to import both the PNG and settings into a dedicated community folder. Preview before applying to Codex / Doubao. **Open selected asset folder** reveals the image folder. Renaming an external PNG changes its display name, but saved settings are tied to its path; keep tuned filenames unchanged.
 
@@ -122,9 +143,9 @@ The studio's **Online bubble gallery** link opens this public site directly. The
   <sub>The simulator in the online gallery: check bubble effects with short and long messages (independent simulation, not a real Codex screenshot)</sub>
 </p>
 
-**Alien Cat, LOVE, and Cooking Cat** are included on the desktop studio's first launch. Nothing is automatically applied to your chats. Use **Restore built-in presets** to recover deleted presets.
+**Alien Cat, LOVE, and Cooking Cat** are included on the desktop studio's first launch. Alien Cat is applied to Codex on first launch. Use **Restore built-in presets** to recover deleted presets.
 
-- **Import a work's settings**: Download a PNG and its `.bubble.json` from a work's detail page. Import and select the PNG in the desktop studio, then **Import settings** to retain its stretch guides and text placement. Preview before applying.
+- **Use a community bubble**: Open the local studio, then click **Import into my studio** on a work's detail page. Its PNG and settings are imported together. Preview, then apply to Codex / Doubao. Manual PNG and `.bubble.json` downloads remain available.
 - **Create in the online workshop**: Choose **Create a bubble** and upload a PNG. A full Codex simulation appears above an editor that shares the desktop studio's stretch, text-position, and rendering logic. **Save settings** lets you download the original PNG and `.bubble.json`; until you choose **Publish my bubble**, the image stays in your browser — nothing is uploaded and there is no AI image generation.
 - **Publish**: Choose **Publish my bubble** and enter a nickname and bubble name. The PNG and its current settings enter a private review queue together; the maintainer publishes approved works manually, no account required. Review criteria: [COMMUNITY.md](COMMUNITY.md).
 - **Download counts**: Public counts come from each PNG's GitHub Releases download statistics. They may be delayed and do not represent unique users; unavailable counts are shown as unavailable. The local gallery labels its separate, local-only counter.
