@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/kaitongg-bit/DIYcodex-bubble"><img src="https://img.shields.io/github/stars/kaitongg-bit/DIYcodex-bubble" alt="Stars"></a>
-  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20beta-lightgrey" alt="macOS and Windows beta">
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey" alt="macOS and Windows">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT">
 </p>
 
@@ -26,9 +26,9 @@
   <a href="DEVELOPMENT.md">开发说明</a>
 </p>
 
-支持 **macOS 上的 Codex / ChatGPT 和豆包桌面端**；新增 Windows 测试版入口。只替换 **你发送的消息气泡**，助手回复保持原样；想换回来，点「恢复默认」即可。
+支持 **macOS 和 Windows 上的 Codex / ChatGPT、豆包桌面端**，两平台均已实机验证。只替换 **你发送的消息气泡**，助手回复保持原样；想换回来，点「恢复默认」即可。
 
-**macOS 已验证 · Windows 测试版 · 中英文界面 · 本机素材库 · MIT 许可**
+**macOS / Windows 已验证 · 中英文界面 · 本机素材库 · MIT 许可**
 
 > 非 OpenAI / Codex 官方产品，独立的聊天外观工具，不修改官方应用安装包。桌面工坊源码在 `main` 分支；在线作品库是单独生成并发布到 `gh-pages` 的 Pages 站点，不会混进源码下载。
 
@@ -82,7 +82,7 @@
 3. 首次运行会自动把内置 **外星小猫** 应用到 Codex，并开启「电脑开机后自动恢复」。如果 Codex 此前已普通启动，保存输入并完全退出，再点工坊的「重新启动」；工坊不会强制关闭正在使用的应用。
 4. 可以直接用外星小猫，也可以换图片、调拉伸线，或在顶部切换到豆包单独应用。点「恢复默认」可撤销当前平台的换肤。
 
-macOS 已验证；Windows 的 Codex / 豆包气泡已有用户实机成功使用，仍作为测试版维护，不保证所有应用版本与安装方式都兼容。
+macOS 和 Windows 的 Codex / 豆包气泡均已实机验证。应用更新或不同安装方式可能影响连接，遇到问题可按下方说明反馈。
 
 Windows 默认提供约 **4 MB** 的小安装包：已有兼容环境就不重复安装；首次下载可以关闭窗口取消，之后重新打开会重试。完整离线版约 33 MB，安装后约 107–111 MB。若电脑没有运行环境，小安装包首次准备后也会增加相应的磁盘占用；已有环境的用户才会省下这些空间。图片、设置和下载的环境分别保存在本机独立目录，升级保留设置。
 
@@ -94,9 +94,9 @@ macOS 使用 DMG 安装，Windows 使用 EXE 安装包，两者都从 **DIY Code
 
 需要从源码启动？见 [运行与开发说明](DEVELOPMENT.md)。
 
-Windows 测试版会查找各个本地磁盘的常见安装位置、运行中的应用、注册表、快捷方式与可信发布者的 Microsoft Store 包。若找不到应用，点击工坊里的“选择应用位置”，选取已安装的 `Doubao.exe`、`Codex.exe` 或 `ChatGPT.exe`；位置会自动保存。不要选择下载的 `OnlineInstaller` 安装器。部分 Windows 商店应用可能不接受调试端口参数；若一直显示“未连接”，请在 [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues) 附上 Windows 版本、应用版本与 `.local/app-start.log` 中去除私人路径后的报错，勿上传聊天内容。
+Windows 版会查找各个本地磁盘的常见安装位置、运行中的应用、注册表、快捷方式与可信发布者的 Microsoft Store 包。若找不到应用，点击工坊里的“选择应用位置”，选取已安装的 `Doubao.exe`、`Codex.exe` 或 `ChatGPT.exe`；位置会自动保存。不要选择下载的 `OnlineInstaller` 安装器。部分 Windows 商店应用可能不接受调试端口参数；若一直显示“未连接”，请在 [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues) 附上 Windows 版本、应用版本与 `.local/app-start.log` 中去除私人路径后的报错，勿上传聊天内容。
 
-Windows 安装版的设置与日志位于 `%LOCALAPPDATA%\DIY Codex Bubble\Data`；升级保留设置。旧的源码 ZIP / `.cmd` 方式仍可用于开发，但需要自行安装 Python 和 Node.js。Windows 桌面注入仍标为测试版，遇到连接问题请按上面的方式反馈。
+Windows 安装版的设置与日志位于 `%LOCALAPPDATA%\DIY Codex Bubble\Data`；升级保留设置。旧的源码 ZIP / `.cmd` 方式仍可用于开发，但需要自行安装 Python 和 Node.js。遇到连接问题请按上面的方式反馈。
 
 ## 使用说明
 

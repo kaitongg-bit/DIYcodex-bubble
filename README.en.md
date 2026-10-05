@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/kaitongg-bit/DIYcodex-bubble"><img src="https://img.shields.io/github/stars/kaitongg-bit/DIYcodex-bubble" alt="Stars"></a>
-  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20beta-lightgrey" alt="macOS and Windows beta">
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey" alt="macOS and Windows">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT">
 </p>
 
@@ -26,9 +26,9 @@
   <a href="DEVELOPMENT.md">Development</a>
 </p>
 
-Works with the **Codex / ChatGPT and Doubao desktop apps** on macOS, with a new Windows beta launcher. Only **your messages** get a bubble — assistant replies keep their original look. Click **Restore default** to switch back anytime.
+Works with the **Codex / ChatGPT and Doubao desktop apps** on macOS and Windows, with real-device verification on both platforms. Only **your messages** get a bubble — assistant replies keep their original look. Click **Restore default** to switch back anytime.
 
-**macOS verified · Windows beta · English / 中文 UI · Local library · MIT licensed**
+**macOS / Windows verified · English / 中文 UI · Local library · MIT licensed**
 
 > An independent appearance tool. **Not an official OpenAI or Codex product.** It does not modify the official app installation. The desktop studio lives on `main`; the public gallery is generated separately and published from `gh-pages`, so source downloads do not include it.
 
@@ -82,7 +82,7 @@ GitHub's **Source code (zip / tar.gz)** downloads are development source, not po
 3. First launch applies **Alien cat** to Codex and enables **Restore after computer startup**. If Codex is already running normally, save your work, fully quit it, then use the studio's Restart button. The studio does not force-quit apps.
 4. Keep the preset, select another image, adjust stretch guides, or switch to Doubao and apply a separate bubble. **Restore default** reverses the selected app's skin.
 
-macOS is verified. Users have successfully applied bubbles to Codex / Doubao on Windows; Windows remains beta, and compatibility may vary by app version and installation method.
+Codex / Doubao bubbles have been verified on real devices on both macOS and Windows. App updates and installation methods may affect connectivity; see the troubleshooting notes below.
 
 The default small installer is around **4 MB** and reuses compatible runtimes. Close the setup progress window to cancel a download; reopen to retry. The full offline build downloads at around 33 MB and uses around 107–111 MB after installation. On computers without runtimes, the small build will also use additional disk space after first setup; most savings come from reusing existing installations. Images, settings, and downloaded runtimes are stored separately, and upgrades preserve settings.
 
@@ -92,9 +92,9 @@ The default small installer is around **4 MB** and reuses compatible runtimes. C
 
 For running from source, see [Development notes](DEVELOPMENT.en.md).
 
-The Windows beta checks common folders on local drives, running apps, registry entries, shortcuts, and Microsoft Store packages from expected publishers. If an app is not found, click “Choose application location” in the workshop and select the installed `Doubao.exe`, `Codex.exe`, or `ChatGPT.exe`. Your choice is saved. Do not select the downloaded `OnlineInstaller`. Some Store app builds may ignore the debugging flags. If the studio remains disconnected, report the Windows and app versions in [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues), along with relevant errors from `.local/app-start.log` after removing private paths. Do not upload chat content.
+The Windows edition checks common folders on local drives, running apps, registry entries, shortcuts, and Microsoft Store packages from expected publishers. If an app is not found, click “Choose application location” in the workshop and select the installed `Doubao.exe`, `Codex.exe`, or `ChatGPT.exe`. Your choice is saved. Do not select the downloaded `OnlineInstaller`. Some Store app builds may ignore the debugging flags. If the studio remains disconnected, report the Windows and app versions in [Issues](https://github.com/kaitongg-bit/DIYcodex-bubble/issues), along with relevant errors from `.local/app-start.log` after removing private paths. Do not upload chat content.
 
-The installed Windows app stores settings and logs in `%LOCALAPPDATA%\DIY Codex Bubble\Data`; upgrades preserve them. The unsigned installer may trigger SmartScreen. Legacy source ZIP / `.cmd` launchers remain available for development and require separately installed Python and Node.js. Windows desktop injection remains beta; please report connection issues as described above.
+The installed Windows app stores settings and logs in `%LOCALAPPDATA%\DIY Codex Bubble\Data`; upgrades preserve them. The unsigned installer may trigger SmartScreen. Legacy source ZIP / `.cmd` launchers remain available for development and require separately installed Python and Node.js. Please report connection issues as described above.
 
 ## Usage
 
