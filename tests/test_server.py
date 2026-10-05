@@ -57,6 +57,13 @@ class StudioTests(unittest.TestCase):
    with self.assertRaises(urllib.error.HTTPError):self.request('/api/community-import',{'kind':'community','id':'missing'})
   with self.assertRaises(urllib.error.HTTPError):self.request('/api/community-import',{'kind':'community','id':'cat'},origin=False)
   with self.assertRaises(urllib.error.HTTPError):self.request('/api/open-material-folder',{'id':'../private'})
+ def test_shutdown_requires_origin_and_matching_installation(self):
+  with self.assertRaises(urllib.error.HTTPError):self.request('/api/shutdown',{'instance':server.INSTANCE},origin=False)
+  with self.assertRaises(urllib.error.HTTPError):self.request('/api/shutdown',{'instance':'other-install'})
+  done=threading.Event()
+  with patch.object(self.http,'shutdown',side_effect=done.set),patch.object(server.STOP,'set') as stop:
+   self.assertTrue(self.request('/api/shutdown',{'instance':server.INSTANCE})['ok'])
+   self.assertTrue(done.wait(2));stop.assert_called_once()
  def test_status_identifies_backend_and_picker_capability(self):
   status=self.request('/api/status');data=self.request('/api/library')
   self.assertEqual(status['apiVersion'],2)

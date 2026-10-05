@@ -18,15 +18,42 @@ internal static class Launcher {
         }
         return false;
     }
+    internal static void RequestServiceShutdown(string root) {
+        try {
+            string normalized=Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar).ToLowerInvariant();
+            string identity;
+            using(var sha=System.Security.Cryptography.SHA256.Create())identity=BitConverter.ToString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(normalized))).Replace("-","").ToLowerInvariant();
+            var probe=(System.Net.HttpWebRequest)System.Net.WebRequest.Create("http://127.0.0.1:19329/api/status");probe.Timeout=1500;probe.Proxy=null;
+            string status;
+            using(var response=probe.GetResponse())using(var reader=new StreamReader(response.GetResponseStream()))status=reader.ReadToEnd();
+            if(!System.Text.RegularExpressions.Regex.IsMatch(status,"\"instance\"\\s*:\\s*\""+identity+"\""))return;
+            var request=(System.Net.HttpWebRequest)System.Net.WebRequest.Create("http://127.0.0.1:19329/api/shutdown");
+            request.Timeout=1500;request.Proxy=null;request.Method="POST";request.ContentType="application/json";
+            request.Headers["Origin"]="http://127.0.0.1:19329";request.Headers["X-Bubble-Studio"]="1";
+            byte[] body=System.Text.Encoding.UTF8.GetBytes("{\"instance\":\""+identity+"\"}");request.ContentLength=body.Length;
+            using(var stream=request.GetRequestStream())stream.Write(body,0,body.Length);
+            using(var response=request.GetResponse()){}
+            Thread.Sleep(750);
+        } catch(System.Net.WebException) {} // Older workshops fall back to owned-process termination.
+        catch(IOException) {}
+    }
     internal static void StopOwnedService(string root) {
         root=Path.GetFullPath(root);
+        RequestServiceShutdown(root);
         if(!File.Exists(Path.Combine(root,"app","server.py")))return;
         using(var search=new System.Management.ManagementObjectSearcher("SELECT ProcessId, ExecutablePath, CommandLine FROM Win32_Process WHERE Name='python.exe' OR Name='pythonw.exe' OR Name='node.exe'"))
         using(var items=search.Get()) foreach(System.Management.ManagementObject item in items) {
             using(item) {
                 if(!IsOwnedProcess(root,item["ExecutablePath"] as string,item["CommandLine"] as string))continue;
                 try { using(var process=Process.GetProcessById(Convert.ToInt32(item["ProcessId"]))) {
-                    process.Kill();if(!process.WaitForExit(5000))throw new Exception("工坊后台服务未能退出 / Workshop service did not exit");
+                    process.Refresh();if(process.HasExited)continue;
+                    try {process.Kill();}
+                    catch(System.ComponentModel.Win32Exception) {
+                        // Windows may report Access Denied when a short-lived bridge has already exited.
+                        if(process.WaitForExit(750))continue;
+                        throw;
+                    }
+                    if(!process.WaitForExit(5000))throw new Exception("工坊后台服务未能退出 / Workshop service did not exit");
                 }} catch(ArgumentException) {} // The short-lived bridge may have exited already.
                 catch(InvalidOperationException) {} // It exited between lookup and termination.
             }

@@ -12,7 +12,7 @@ class UpdateTests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)/'app';self.root.mkdir();self.data=Path(self.tmp.name)/'data';self.data.mkdir();self.u=updater.Updater(self.root,self.data)
  def tearDown(self):self.tmp.cleanup()
- def release(self):return {'tag_name':'v0.2.12','assets':[{'name':'DIYcodex-bubble-v0.2.12-windows-x64-light-setup.exe','size':3,'digest':'sha256:'+hashlib.sha256(b'abc').hexdigest(),'browser_download_url':'https://github.com/'+updater.REPO+'/releases/download/v0.2.12/DIYcodex-bubble-v0.2.12-windows-x64-light-setup.exe'}]}
+ def release(self):return {'tag_name':'v0.2.13','assets':[{'name':'DIYcodex-bubble-v0.2.13-windows-x64-light-setup.exe','size':3,'digest':'sha256:'+hashlib.sha256(b'abc').hexdigest(),'browser_download_url':'https://github.com/'+updater.REPO+'/releases/download/v0.2.13/DIYcodex-bubble-v0.2.13-windows-x64-light-setup.exe'}]}
  def test_version_check_and_source_download_fallback(self):
   with patch.object(updater.urllib.request,'urlopen',return_value=Response(json.dumps(self.release()).encode())):
    self.u.work('check')
@@ -31,9 +31,9 @@ class UpdateTests(unittest.TestCase):
  def test_macos_swap_and_rollback_keep_personal_data(self):
   app=self.root/'DIY Codex Bubble.app';old=app/'Contents/Resources';old.mkdir(parents=True);(old/'marker').write_text('old')
   image=self.root/'image';source=image/'DIY Codex Bubble.app';(source/'Contents').mkdir(parents=True)
-  (source/'Contents/Info.plist').write_bytes(plistlib.dumps({'CFBundleIdentifier':'cc.kaitongg.diycodexbubble','CFBundleShortVersionString':'0.2.12'}));(source/'marker').write_text('new')
+  (source/'Contents/Info.plist').write_bytes(plistlib.dumps({'CFBundleIdentifier':'cc.kaitongg.diycodexbubble','CFBundleShortVersionString':'0.2.13'}));(source/'marker').write_text('new')
   (self.data/'updates').mkdir();(self.data/'state.json').write_text('settings');package=self.data/'updates/test.dmg';package.write_bytes(b'dmg')
-  job={'root':str(old),'data':str(self.data),'package':str(package),'version':'0.2.12','pid':123}
+  job={'root':str(old),'data':str(self.data),'package':str(package),'version':'0.2.13','pid':123}
   def run(args,**kwargs):
    if args[0]=='/usr/bin/open' and (app/'marker').exists():raise OSError('launch failed')
   with patch.object(updater.sys,'platform','darwin'),patch.object(updater.tempfile,'mkdtemp',return_value=str(image)),patch.object(updater.subprocess,'run',side_effect=run),patch.object(updater.os,'kill') as kill,patch.object(updater.time,'sleep'):

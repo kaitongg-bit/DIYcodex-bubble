@@ -1,7 +1,7 @@
 """Explicit updates from this project's GitHub Releases; user data stays outside the app."""
 from pathlib import Path
 import hashlib,json,os,plistlib,re,shutil,subprocess,sys,tempfile,threading,time,urllib.request
-VERSION='0.2.11'
+VERSION='0.2.12'
 REPO='kaitongg-bit/DIYcodex-bubble'
 API='https://api.github.com/repos/'+REPO+'/releases/latest'
 class Updater:

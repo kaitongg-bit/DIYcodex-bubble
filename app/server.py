@@ -280,6 +280,10 @@ class Handler(BaseHTTPRequestHandler):
      if s['platform']!=key:raise ValueError('平台已切换，请刷新后重试')
      s['platforms'][key]['applicationPath']=str(executable);save(s)
     return self.send({'ok':True,'platform':key})
+   if self.path=='/api/shutdown':
+    if body.get('instance')!=INSTANCE:raise ValueError('工坊实例不匹配')
+    self.send({'ok':True});STOP.set()
+    threading.Thread(target=self.server.shutdown,daemon=True).start();return
    if self.path in ('/api/update/check','/api/update/install'):
     return self.send(UPDATER.start('check' if self.path.endswith('/check') else 'install'))
    if self.path=='/api/choose-folder':
